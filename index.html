@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGen AI // CMLRE Initiative</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000000;
+            color: #e5e7eb;
+            --grid-color: rgba(255, 255, 255, 0.07);
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        #bg-dna-canvas {
+            position: fixed;
+            top: 0;
+            left: 0; /* Positioned to the left */
+            width: 100%; /* Full width */
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.25; /* Adjusted opacity */
+            pointer-events: none;
+        }
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+            background-color: rgba(0,0,0,0.5);
+            border: 1px solid #27272a;
+            backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background-color: transparent;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            border: 1px solid #ffffff;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .btn-primary:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .section-title {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .line {
+            height: 1px;
+            background-color: #27272a;
+            flex-grow: 1;
+        }
+        .text-scramble {
+            display: inline-block;
+        }
+        .blinking-cursor {
+            color: white;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <canvas id="bg-dna-canvas"></canvas>
+    <div class="content-wrapper">
+        <!-- =============================================================== -->
+        <!-- ======================== LANDING PAGE ========================= -->
+        <!-- =============================================================== -->
+        <div id="homePage">
+            <header class="fixed top-0 left-0 right-0 z-50">
+                <nav class="container mx-auto px-6 py-4 flex justify-between items-center border-b border-gray-800 bg-black/50 backdrop-blur-md">
+                    <div class="text-lg font-bold text-white tracking-widest">
+                        <a href="#">DEEPGEN_AI</a>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-8 text-sm uppercase">
+                        <a href="#problem" class="text-gray-400 hover:text-white transition">01_Problem</a>
+                        <a href="#solution" class="text-gray-400 hover:text-white transition">02_Solution</a>
+                        <a href="#tech" class="text-gray-400 hover:text-white transition">03_System</a>
+                    </div>
+                    <button id="loginBtn" class="btn-primary font-medium py-2 px-4 text-xs">
+                        Engage Platform
+                    </button>
+                </nav>
+            </header>
+
+            <main class="container mx-auto px-6">
+                <!-- Hero Section -->
+                <section class="min-h-screen flex flex-col justify-center items-start pt-20">
+                    <div class="w-full lg:w-1/2">
+                        <div class="text-left">
+                            <h1 class="text-3xl md:text-5xl font-bold text-white leading-tight mb-4">
+                                <span class="text-scramble" data-text="AI-DRIVEN eDNA ANALYSIS"></span>
+                                <span class="blinking-cursor">_</span>
+                            </h1>
+                            <p class="text-base text-gray-400 mb-8 font-light max-w-lg">
+                               A high-throughput pipeline to classify eukaryotic taxa and assess deep-sea biodiversity directly from raw environmental DNA, bypassing the limitations of conventional reference databases.
+                            </p>
+                            <a href="#problem" class="btn-primary font-semibold py-3 px-6 text-sm">
+                                View Mission Brief
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Helper function to generate section titles -->
+                <script>
+                    const createSectionTitle = (number, title) => `
+                        <div data-reveal class="flex items-center gap-4 py-24">
+                            <span class="section-title text-gray-500">${number}</span>
+                            <span class="section-title text-white">${title}</span>
+                            <div class="line"></div>
+                        </div>
+                    `;
+                </script>
+
+                <!-- Problem Section -->
+                <section id="problem">
+                    <script>document.write(createSectionTitle('01', 'Problem Statement'))</script>
+                    <div class="grid md:grid-cols-2 gap-px bg-[#27272a]">
+                        <div class="card p-8 reveal" data-reveal>
+                            <h3 class="text-xl font-semibold text-white mb-4">// Incomplete Databases</h3>
+                            <p class="text-gray-400 font-light">
+                               Deep-sea organisms are critically underrepresented in genetic reference databases. This data void results in misclassification, unassigned reads, and a fundamental underestimation of true biodiversity.
+                            </p>
+                        </div>
+                        <div class="card p-8 reveal" data-reveal style="transition-delay: 150ms">
+                            <h3 class="text-xl font-semibold text-white mb-4">// Computational Bottlenecks</h3>
+                            <p class="text-gray-400 font-light">
+                                Legacy bioinformatic pipelines are computationally expensive and inefficient for novel discovery. Their reliance on sequence alignment against flawed databases is a primary limiting factor.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Solution Section -->
+                <section id="solution">
+                    <script>document.write(createSectionTitle('02', 'Proposed Solution'))</script>
+                    <div class="card p-8 md:p-12 border border-[#27272a] reveal" data-reveal>
+                       <p class="text-base text-gray-300 leading-relaxed font-light">
+                            Our AI-driven pipeline leverages deep learning and unsupervised clustering to analyze eDNA without primary reliance on existing databases. The system is designed to:
+                        </p>
+                        <ul class="mt-8 space-y-6 text-sm">
+                            <li class="flex items-start">
+                                <span class="text-white mr-4 mt-1">[+]</span>
+                                <span><strong class="text-white font-medium">CLASSIFY TAXA DIRECTLY:</strong> A fine-tuned DNA-BERT transformer model interprets raw sequence data, enabling classification without perfect database matches.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-white mr-4 mt-1">[+]</span>
+                                <span><strong class="text-white font-medium">DISCOVER NOVEL SPECIES:</strong> Unsupervised clustering algorithms (DBSCAN, k-means) identify and group unknown sequences, flagging potential new taxa for targeted analysis.</span>
+                            </li>
+                             <li class="flex items-start">
+                                <span class="text-white mr-4 mt-1">[+]</span>
+                                <span><strong class="text-white font-medium">GENERATE ECOLOGICAL INSIGHTS:</strong> Rapidly produce accurate estimations of species abundance and community structure to inform conservation and research priorities.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+                
+                <!-- Technology Section -->
+                <section id="tech">
+                    <script>document.write(createSectionTitle('03', 'System Architecture'))</script>
+                    <div class="card p-8 flex justify-center items-center border border-[#27272a] reveal" data-reveal>
+                       <p class="text-center text-gray-400 max-w-4xl font-light text-sm">
+                           SYSTEM INGESTS RAW eDNA DATA -> PREPROCESSING MODULE EXTRACTS 18S rRNA & COI MARKERS -> DATA IS VECTORIZED BY A FINE-TUNED DNA-BERT TRANSFORMER -> EMBEDDINGS ARE PROCESSED VIA DUAL PATHWAYS: [A] DEEP LEARNING FOR CLASSIFICATION, [B] UNSUPERVISED CLUSTERING FOR NOVELTY DETECTION -> OUTPUT GENERATION: TAXONOMIC GROUPING, ABUNDANCE ESTIMATION, ECOLOGICAL INSIGHTS.
+                       </p>
+                    </div>
+                </section>
+                 <div class="h-24"></div>
+            </main>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- ========================== LOGIN PAGE ========================= -->
+        <!-- =============================================================== -->
+        <div id="loginPage" class="hidden min-h-screen flex items-center justify-center p-4">
+             <div class="w-full max-w-sm">
+                <div class="card p-8 space-y-6 border border-[#27272a]">
+                    <h2 class="text-lg font-bold text-center text-white tracking-widest">// AUTHENTICATION REQUIRED</h2>
+                    
+                    <div>
+                        <div class="flex border border-[#27272a]">
+                            <button id="userToggle" class="w-1/2 py-2 text-sm font-medium bg-white text-black">USER</button>
+                            <button id="adminToggle" class="w-1/2 py-2 text-sm font-medium text-gray-400">ADMIN</button>
+                        </div>
+                    </div>
+                    
+                    <form id="loginForm" class="space-y-4">
+                        <div>
+                            <label for="email" class="text-xs font-medium text-gray-400">EMAIL_ADDR</label>
+                            <input type="email" id="email" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm" value="user@cmlre.gov">
+                        </div>
+                        <div>
+                            <label for="password" class="text-xs font-medium text-gray-400">PASSWORD</label>
+                            <input type="password" id="password" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none" value="password">
+                        </div>
+                        <button type="submit" class="w-full btn-primary font-bold py-3 px-4 text-xs">
+                            EXECUTE LOGIN
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================================================== -->
+        <!-- ======================= DASHBOARD PAGE ======================== -->
+        <!-- =============================================================== -->
+        <div id="dashboardPage" class="hidden min-h-screen container mx-auto px-6 py-8">
+            <div class="flex justify-between items-center mb-8 border-b border-[#27272a] pb-4">
+                <h1 class="text-xl font-bold text-white tracking-widest">// ANALYSIS DASHBOARD</h1>
+                <button id="logoutBtn" class="text-gray-400 hover:text-white transition text-xs uppercase">LOGOUT</button>
+            </div>
+
+            <!-- Input Section -->
+            <div class="card p-6 mb-8 border border-[#27272a]">
+                <h2 class="text-lg font-semibold text-white mb-4">// SUBMIT eDNA SEQUENCE</h2>
+                <textarea id="dnaSequenceInput" rows="6" class="w-full p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white outline-none text-sm" placeholder="> Paste raw eDNA sequence here..."></textarea>
+                <div class="mt-4 text-right">
+                    <button id="analyzeBtn" class="btn-primary font-bold py-2 px-5 text-xs">
+                        INITIATE ANALYSIS
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="mb-8 card border border-[#27272a] p-4">
+                    <h3 class="text-lg font-semibold text-white mb-4">// AI PIPELINE STATUS</h3>
+                    <div id="pipelineStatus" class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4 text-xs">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="card p-6 border border-[#27272a]">
+                            <h3 class="text-lg font-semibold text-white mb-4">// TAXONOMIC CLASSIFICATION</h3>
+                            <div id="classificationResult" class="space-y-3 text-sm"></div>
+                        </div>
+                        <div class="card p-6 border border-[#27272a]">
+                            <h3 class="text-lg font-semibold text-white mb-4">// EXTRACTED MARKER GENES</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-semibold text-white text-sm">18S_rRNA_GENE_FRAGMENT</h4>
+                                    <p id="gene18s" class="text-xs break-all bg-black p-3 mt-2 border border-[#27272a]"></p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white text-sm">COI_GENE_FRAGMENT</h4>
+                                    <p id="geneCOI" class="text-xs break-all bg-black p-3 mt-2 border border-[#27272a]"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-8">
+                        <div class="card p-6 border border-[#27272a]">
+                            <h3 class="text-lg font-semibold text-white mb-4">// TAXA ABUNDANCE</h3>
+                            <canvas id="abundanceChart"></canvas>
+                        </div>
+                        <div class="card p-6 border border-[#27272a]">
+                            <h3 class="text-lg font-semibold text-white mb-4">// NOVELTY DETECTION</h3>
+                            <div id="noveltyResult" class="text-center p-4 bg-black border border-[#27272a]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="h-24"></div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import * as THREE from 'three';
+        
+        // --- Background 3D DNA Model ---
+        const bgCanvas = document.getElementById('bg-dna-canvas');
+        if (bgCanvas) {
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 10, 40); // Add fog for atmosphere
+
+            const camera = new THREE.PerspectiveCamera(75, bgCanvas.clientWidth / bgCanvas.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: bgCanvas, alpha: true, antialias: true });
+            renderer.setSize(bgCanvas.clientWidth, bgCanvas.clientHeight);
+
+            // Add lighting for a more realistic look
+            const ambientLight = new THREE.AmbientLight(0x40a0ff, 0.5);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0x80c0ff, 1);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+
+            const group = new THREE.Group();
+             // Give it an initial tilt for a more dynamic look
+            group.rotation.x = Math.PI / 8;
+            group.rotation.y = -Math.PI / 4;
+
+            const helixRadius = 3; // Wider helix
+            const helixHeight = 40; // Taller helix
+            const turnCount = 10;
+            const basePairs = 150; // More base pairs to fill
+            const baseColors = [0x00aaff, 0x0088cc, 0x006699]; // Monochromatic blue palette
+
+            const createStrand = () => {
+                const curve = new THREE.CatmullRomCurve3(
+                    Array.from({ length: 200 }, (_, i) => {
+                        const t = (i / 199) * helixHeight;
+                        return new THREE.Vector3(
+                            helixRadius * Math.cos(t * turnCount * Math.PI / helixHeight),
+                            t - helixHeight / 2,
+                            helixRadius * Math.sin(t * turnCount * Math.PI / helixHeight)
+                        );
+                    })
+                );
+                // Use a thicker tube and a material that reacts to light
+                const geometry = new THREE.TubeGeometry(curve, 100, 0.15, 12, false);
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0x0055aa,
+                    shininess: 30
+                });
+                return new THREE.Mesh(geometry, material);
+            };
+
+            const strand1 = createStrand();
+            const strand2 = createStrand();
+            strand2.rotation.y = Math.PI;
+            group.add(strand1, strand2);
+            
+            for (let i = 0; i < basePairs; i++) {
+                const t = (i / (basePairs - 1)) * helixHeight;
+                const y = t - helixHeight / 2;
+                const angle = t * turnCount * Math.PI / helixHeight;
+                
+                const start = new THREE.Vector3(helixRadius * Math.cos(angle), y, helixRadius * Math.sin(angle));
+                const end = new THREE.Vector3(helixRadius * Math.cos(angle + Math.PI), y, helixRadius * Math.sin(angle + Math.PI));
+                
+                const distance = start.distanceTo(end);
+                const position = start.clone().add(end).divideScalar(2);
+
+                // Replace flat lines with cylinders for volume
+                const cylinderGeometry = new THREE.CylinderGeometry(0.08, 0.08, distance, 8);
+                const cylinderMaterial = new THREE.MeshPhongMaterial({
+                    color: baseColors[i % baseColors.length],
+                    emissive: baseColors[i % baseColors.length], // Make them glow slightly
+                    emissiveIntensity: 0.3
+                });
+                const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+
+                cylinder.position.copy(position);
+                // Orient the cylinder to connect the two strands
+                cylinder.lookAt(end);
+                cylinder.rotateX(Math.PI / 2);
+
+                group.add(cylinder);
+            }
+            scene.add(group);
+            const initialCameraZ = 40; // Start further back
+            const finalCameraZ = 5;  // End much closer, "inside" the model
+            camera.position.z = initialCameraZ;
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                // Add a very subtle continuous rotation so it doesn't look static
+                group.rotation.y += 0.0005;
+                renderer.render(scene, camera);
+            };
+            animate();
+            
+            // Function to update camera and rotation based on scroll
+            function handleScrollAnimation() {
+                const scrollY = window.scrollY;
+                // Define the scroll distance over which the animation occurs (e.g., the first screen height)
+                const animationScrollHeight = window.innerHeight;
+                
+                // Calculate progress from 0 to 1, clamped
+                const scrollFraction = Math.min(scrollY / animationScrollHeight, 1);
+
+                // Use an easing function for smoother acceleration/deceleration
+                const easedFraction = 1 - Math.pow(1 - scrollFraction, 3); // Ease-out cubic
+
+                // Animate camera position (zooming in)
+                camera.position.z = THREE.MathUtils.lerp(initialCameraZ, finalCameraZ, easedFraction);
+                
+                // Animate camera position on Y axis to move up through the helix
+                camera.position.y = THREE.MathUtils.lerp(0, helixHeight / 4, easedFraction);
+                
+                // Animate rotation for a cinematic "fly-through" effect
+                group.rotation.y = THREE.MathUtils.lerp(-Math.PI / 4, Math.PI, easedFraction);
+                group.rotation.x = THREE.MathUtils.lerp(Math.PI / 8, -Math.PI / 16, easedFraction);
+            }
+            
+            window.addEventListener('scroll', handleScrollAnimation, { passive: true });
+            
+            window.addEventListener('resize', () => {
+                const newWidth = window.innerWidth;
+                const newHeight = window.innerHeight;
+                camera.aspect = newWidth / newHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(newWidth, newHeight);
+            });
+        }
+        
+        // --- Text Scramble Effect ---
+        class TextScrambleEffect {
+            constructor(el) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.update = this.update.bind(this);
+            }
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40);
+                    const end = start + Math.floor(Math.random() * 40);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span class="opacity-50">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                this.el.innerHTML = output;
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+        
+        const scrambleElements = document.querySelectorAll('.text-scramble');
+        scrambleElements.forEach(el => {
+            const fx = new TextScrambleEffect(el);
+            const originalText = el.dataset.text;
+            setTimeout(() => {
+                el.nextElementSibling.style.display = 'inline-block';
+                fx.setText(originalText).then(() => {
+                    setTimeout(() => {
+                         el.nextElementSibling.style.display = 'none';
+                    }, 1000);
+                });
+            }, 500);
+        });
+
+        // --- Scroll Reveal Effect ---
+        const revealElements = document.querySelectorAll('[data-reveal]');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => {
+            observer.observe(el);
+        });
+
+        // --- Page Navigation and UI Logic ---
+        const homePage = document.getElementById('homePage');
+        const loginPage = document.getElementById('loginPage');
+        const dashboardPage = document.getElementById('dashboardPage');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginForm = document.getElementById('loginForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const userToggle = document.getElementById('userToggle');
+        const adminToggle = document.getElementById('adminToggle');
+
+        loginBtn.addEventListener('click', () => {
+            homePage.style.display = 'none';
+            loginPage.style.display = 'flex';
+        });
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            loginPage.style.display = 'none';
+            dashboardPage.style.display = 'block';
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            dashboardPage.style.display = 'none';
+            homePage.style.display = 'block';
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('dnaSequenceInput').value = '';
+        });
+        
+        const setToggle = (active, inactive) => {
+             active.classList.add('bg-white', 'text-black');
+             active.classList.remove('text-gray-400');
+             inactive.classList.remove('bg-white', 'text-black');
+             inactive.classList.add('text-gray-400');
+        };
+        userToggle.addEventListener('click', () => setToggle(userToggle, adminToggle));
+        adminToggle.addEventListener('click', () => setToggle(adminToggle, userToggle));
+
+        // --- Dashboard Analysis Simulation ---
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const pipelineStatusContainer = document.getElementById('pipelineStatus');
+        let abundanceChartInstance = null;
+        
+        const pipelineSteps = ["PREPROCESSING", "GENE_EXTRACTION", "EMBEDDING", "CLASSIFICATION", "REPORTING"];
+
+        function updatePipelineStatus(stepIndex, status) {
+            const stepElement = document.getElementById(`step-${stepIndex}`);
+            if (!stepElement) return;
+            stepElement.classList.remove('text-gray-500');
+            if (status === 'running') {
+                stepElement.innerHTML = `> ${pipelineSteps[stepIndex]}... <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>`;
+                stepElement.classList.add('text-white');
+            } else if (status === 'done') {
+                stepElement.innerHTML = `> ${pipelineSteps[stepIndex]} [OK]`;
+                stepElement.classList.add('text-green-400');
+            }
+        }
+
+        analyzeBtn.addEventListener('click', () => {
+            const dnaInput = document.getElementById('dnaSequenceInput');
+            if (dnaInput.value.trim() === "") {
+                dnaInput.value = "> GATCCTCCAGENTTAGTTCGCTTGCACTGAATAGACCCGTCACACACAGGAGAGTTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAGGGTGAGGGTCGGCTGTTCCTAGGGCCGAGGTCGTGAGTGGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT";
+            }
+            resultsSection.classList.remove('hidden');
+            
+            pipelineStatusContainer.innerHTML = pipelineSteps.map((step, index) => `
+                <div id="step-${index}" class="flex items-center text-gray-500">${step}</div>
+                ${index < pipelineSteps.length - 1 ? '<div class="flex-grow h-px bg-[#27272a] hidden md:block mx-4"></div>' : ''}
+            `).join('');
+
+            let currentStep = 0;
+            const processNextStep = () => {
+                if (currentStep > 0) updatePipelineStatus(currentStep - 1, 'done');
+                if (currentStep < pipelineSteps.length) {
+                    updatePipelineStatus(currentStep, 'running');
+                    currentStep++;
+                    setTimeout(processNextStep, 800 + Math.random() * 400);
+                } else {
+                    populateResults();
+                }
+            };
+            processNextStep();
+        });
+        
+        function populateResults() {
+            const mockResults = {
+                classification: [
+                    { level: 'Kingdom', value: 'Eukaryota', c: 0.99 }, { level: 'Phylum', value: 'Annelida', c: 0.92 },
+                    { level: 'Class', value: 'Polychaeta', c: 0.88 }, { level: 'Order', value: 'Sabellida', c: 0.81 },
+                    { level: 'Family', value: 'Serpulidae', c: 0.75 },
+                ],
+                genes: {
+                    '18s': 'GTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAG',
+                    'coi': 'GGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT'
+                },
+                abundance: [
+                    { t: 'Annelida', v: 45 }, { t: 'Cnidaria', v: 22 }, { t: 'Porifera', v: 15 },
+                    { t: 'Arthropoda', v: 10 }, { t: 'NOVEL_CLUSTER_A', v: 8 },
+                ],
+                novelty: {
+                    score: 0.85,
+                    msg: "High probability of novel taxa in 'NOVEL_CLUSTER_A'. Sequence shows significant divergence from known Serpulidae genetic markers."
+                }
+            };
+            document.getElementById('classificationResult').innerHTML = mockResults.classification.map(c => `
+                <div class="flex justify-between items-center"><span class="text-gray-400">${c.level.padEnd(10, ' ')}:</span><span class="text-white">${c.value}</span><span class="text-gray-500">CONF:${(c.c*100).toFixed(0)}%</span></div>`).join('');
+            
+            document.getElementById('gene18s').textContent = mockResults.genes['18s'];
+            document.getElementById('geneCOI').textContent = mockResults.genes['coi'];
+            
+            document.getElementById('noveltyResult').innerHTML = `<p class="text-sm text-gray-400 mb-2">${mockResults.novelty.msg}</p><div class="text-xl font-bold text-white">${(mockResults.novelty.score * 100).toFixed(1)}% DIVERGENCE</div>`;
+            
+            const ctx = document.getElementById('abundanceChart').getContext('2d');
+            if(abundanceChartInstance) abundanceChartInstance.destroy();
+            
+            Chart.defaults.font.family = "'Roboto Mono', monospace";
+            abundanceChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: mockResults.abundance.map(a => a.t),
+                    datasets: [{
+                        label: 'Abundance',
+                        data: mockResults.abundance.map(a => a.v),
+                        backgroundColor: mockResults.abundance.map(a => a.t.startsWith('NOVEL') ? '#6b7280' : 'rgba(255, 255, 255, 0.8)'),
+                    }]
+                },
+                options: {
+                    responsive: true, indexAxis: 'y',
+                    scales: {
+                        y: { ticks: { color: '#9ca3af', font: {size: 10} }, grid: { color: '#27272a' } },
+                        x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
