@@ -31,11 +31,11 @@
         #bg-dna-canvas {
             position: fixed;
             top: 0;
-            left: 0; /* Positioned to the left */
-            width: 100%; /* Full width */
+            left: 0;
+            width: 100%;
             height: 100vh;
             z-index: 0;
-            opacity: 0.25; /* Adjusted opacity */
+            opacity: 0.25;
             pointer-events: none;
         }
         .content-wrapper {
@@ -58,6 +58,11 @@
         .btn-primary:hover {
             background-color: #ffffff;
             color: #000000;
+        }
+        .btn-primary:disabled {
+            color: #6b7280;
+            border-color: #3f3f46;
+            cursor: not-allowed;
         }
         .reveal {
             opacity: 0;
@@ -255,10 +260,9 @@
 
             <!-- Results Section -->
             <div id="resultsSection" class="hidden">
-                <div class="mb-8 card border border-[#27272a] p-4">
-                    <h3 class="text-lg font-semibold text-white mb-4">// AI PIPELINE STATUS</h3>
-                    <div id="pipelineStatus" class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4 text-xs">
-                    </div>
+                 <div class="mb-8 card border border-[#27272a] p-4">
+                    <h3 class="text-lg font-semibold text-white mb-4">// API STATUS</h3>
+                    <div id="pipelineStatus" class="text-xs"></div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -302,33 +306,27 @@
         import * as THREE from 'three';
         
         // --- Background 3D DNA Model ---
+        // This section remains unchanged.
         const bgCanvas = document.getElementById('bg-dna-canvas');
         if (bgCanvas) {
             const scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x000000, 10, 40); // Add fog for atmosphere
-
+            scene.fog = new THREE.Fog(0x000000, 10, 40);
             const camera = new THREE.PerspectiveCamera(75, bgCanvas.clientWidth / bgCanvas.clientHeight, 0.1, 1000);
             const renderer = new THREE.WebGLRenderer({ canvas: bgCanvas, alpha: true, antialias: true });
             renderer.setSize(bgCanvas.clientWidth, bgCanvas.clientHeight);
-
-            // Add lighting for a more realistic look
             const ambientLight = new THREE.AmbientLight(0x40a0ff, 0.5);
             scene.add(ambientLight);
             const directionalLight = new THREE.DirectionalLight(0x80c0ff, 1);
             directionalLight.position.set(5, 5, 5);
             scene.add(directionalLight);
-
             const group = new THREE.Group();
-             // Give it an initial tilt for a more dynamic look
             group.rotation.x = Math.PI / 8;
             group.rotation.y = -Math.PI / 4;
-
-            const helixRadius = 3; // Wider helix
-            const helixHeight = 40; // Taller helix
+            const helixRadius = 3;
+            const helixHeight = 40;
             const turnCount = 10;
-            const basePairs = 150; // More base pairs to fill
-            const baseColors = [0x00aaff, 0x0088cc, 0x006699]; // Monochromatic blue palette
-
+            const basePairs = 150;
+            const baseColors = [0x00aaff, 0x0088cc, 0x006699];
             const createStrand = () => {
                 const curve = new THREE.CatmullRomCurve3(
                     Array.from({ length: 200 }, (_, i) => {
@@ -340,85 +338,55 @@
                         );
                     })
                 );
-                // Use a thicker tube and a material that reacts to light
                 const geometry = new THREE.TubeGeometry(curve, 100, 0.15, 12, false);
-                const material = new THREE.MeshPhongMaterial({
-                    color: 0x0055aa,
-                    shininess: 30
-                });
+                const material = new THREE.MeshPhongMaterial({ color: 0x0055aa, shininess: 30 });
                 return new THREE.Mesh(geometry, material);
             };
-
             const strand1 = createStrand();
             const strand2 = createStrand();
             strand2.rotation.y = Math.PI;
             group.add(strand1, strand2);
-            
             for (let i = 0; i < basePairs; i++) {
                 const t = (i / (basePairs - 1)) * helixHeight;
                 const y = t - helixHeight / 2;
                 const angle = t * turnCount * Math.PI / helixHeight;
-                
                 const start = new THREE.Vector3(helixRadius * Math.cos(angle), y, helixRadius * Math.sin(angle));
                 const end = new THREE.Vector3(helixRadius * Math.cos(angle + Math.PI), y, helixRadius * Math.sin(angle + Math.PI));
-                
                 const distance = start.distanceTo(end);
                 const position = start.clone().add(end).divideScalar(2);
-
-                // Replace flat lines with cylinders for volume
                 const cylinderGeometry = new THREE.CylinderGeometry(0.08, 0.08, distance, 8);
                 const cylinderMaterial = new THREE.MeshPhongMaterial({
                     color: baseColors[i % baseColors.length],
-                    emissive: baseColors[i % baseColors.length], // Make them glow slightly
+                    emissive: baseColors[i % baseColors.length],
                     emissiveIntensity: 0.3
                 });
                 const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-
                 cylinder.position.copy(position);
-                // Orient the cylinder to connect the two strands
                 cylinder.lookAt(end);
                 cylinder.rotateX(Math.PI / 2);
-
                 group.add(cylinder);
             }
             scene.add(group);
-            const initialCameraZ = 40; // Start further back
-            const finalCameraZ = 5;  // End much closer, "inside" the model
+            const initialCameraZ = 40;
+            const finalCameraZ = 5;
             camera.position.z = initialCameraZ;
-
             const animate = () => {
                 requestAnimationFrame(animate);
-                // Add a very subtle continuous rotation so it doesn't look static
                 group.rotation.y += 0.0005;
                 renderer.render(scene, camera);
             };
             animate();
-            
-            // Function to update camera and rotation based on scroll
             function handleScrollAnimation() {
                 const scrollY = window.scrollY;
-                // Define the scroll distance over which the animation occurs (e.g., the first screen height)
                 const animationScrollHeight = window.innerHeight;
-                
-                // Calculate progress from 0 to 1, clamped
                 const scrollFraction = Math.min(scrollY / animationScrollHeight, 1);
-
-                // Use an easing function for smoother acceleration/deceleration
-                const easedFraction = 1 - Math.pow(1 - scrollFraction, 3); // Ease-out cubic
-
-                // Animate camera position (zooming in)
+                const easedFraction = 1 - Math.pow(1 - scrollFraction, 3);
                 camera.position.z = THREE.MathUtils.lerp(initialCameraZ, finalCameraZ, easedFraction);
-                
-                // Animate camera position on Y axis to move up through the helix
                 camera.position.y = THREE.MathUtils.lerp(0, helixHeight / 4, easedFraction);
-                
-                // Animate rotation for a cinematic "fly-through" effect
                 group.rotation.y = THREE.MathUtils.lerp(-Math.PI / 4, Math.PI, easedFraction);
                 group.rotation.x = THREE.MathUtils.lerp(Math.PI / 8, -Math.PI / 16, easedFraction);
             }
-            
             window.addEventListener('scroll', handleScrollAnimation, { passive: true });
-            
             window.addEventListener('resize', () => {
                 const newWidth = window.innerWidth;
                 const newHeight = window.innerHeight;
@@ -430,70 +398,42 @@
         
         // --- Text Scramble Effect ---
         class TextScrambleEffect {
-            constructor(el) {
-                this.el = el;
-                this.chars = '!<>-_\\/[]{}—=+*^?#________';
-                this.update = this.update.bind(this);
-            }
+            constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
             setText(newText) {
                 const oldText = this.el.innerText;
                 const length = Math.max(oldText.length, newText.length);
                 const promise = new Promise((resolve) => this.resolve = resolve);
                 this.queue = [];
                 for (let i = 0; i < length; i++) {
-                    const from = oldText[i] || '';
-                    const to = newText[i] || '';
-                    const start = Math.floor(Math.random() * 40);
-                    const end = start + Math.floor(Math.random() * 40);
+                    const from = oldText[i] || ''; const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * 40); const end = start + Math.floor(Math.random() * 40);
                     this.queue.push({ from, to, start, end });
                 }
-                cancelAnimationFrame(this.frameRequest);
-                this.frame = 0;
-                this.update();
-                return promise;
+                cancelAnimationFrame(this.frameRequest); this.frame = 0; this.update(); return promise;
             }
             update() {
-                let output = '';
-                let complete = 0;
+                let output = ''; let complete = 0;
                 for (let i = 0, n = this.queue.length; i < n; i++) {
                     let { from, to, start, end, char } = this.queue[i];
-                    if (this.frame >= end) {
-                        complete++;
-                        output += to;
-                    } else if (this.frame >= start) {
-                        if (!char || Math.random() < 0.28) {
-                            char = this.randomChar();
-                            this.queue[i].char = char;
-                        }
+                    if (this.frame >= end) { complete++; output += to; } 
+                    else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.28) { char = this.randomChar(); this.queue[i].char = char; }
                         output += `<span class="opacity-50">${char}</span>`;
-                    } else {
-                        output += from;
-                    }
+                    } else { output += from; }
                 }
                 this.el.innerHTML = output;
-                if (complete === this.queue.length) {
-                    this.resolve();
-                } else {
-                    this.frameRequest = requestAnimationFrame(this.update);
-                    this.frame++;
-                }
+                if (complete === this.queue.length) { this.resolve(); } 
+                else { this.frameRequest = requestAnimationFrame(this.update); this.frame++; }
             }
-            randomChar() {
-                return this.chars[Math.floor(Math.random() * this.chars.length)];
-            }
+            randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
         }
         
         const scrambleElements = document.querySelectorAll('.text-scramble');
         scrambleElements.forEach(el => {
-            const fx = new TextScrambleEffect(el);
-            const originalText = el.dataset.text;
+            const fx = new TextScrambleEffect(el); const originalText = el.dataset.text;
             setTimeout(() => {
                 el.nextElementSibling.style.display = 'inline-block';
-                fx.setText(originalText).then(() => {
-                    setTimeout(() => {
-                         el.nextElementSibling.style.display = 'none';
-                    }, 1000);
-                });
+                fx.setText(originalText).then(() => { setTimeout(() => { el.nextElementSibling.style.display = 'none'; }, 1000); });
             }, 500);
         });
 
@@ -501,16 +441,10 @@
         const revealElements = document.querySelectorAll('[data-reveal]');
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
             });
         }, { threshold: 0.1 });
-
-        revealElements.forEach(el => {
-            observer.observe(el);
-        });
+        revealElements.forEach(el => { observer.observe(el); });
 
         // --- Page Navigation and UI Logic ---
         const homePage = document.getElementById('homePage');
@@ -522,130 +456,145 @@
         const userToggle = document.getElementById('userToggle');
         const adminToggle = document.getElementById('adminToggle');
 
-        loginBtn.addEventListener('click', () => {
-            homePage.style.display = 'none';
-            loginPage.style.display = 'flex';
-        });
-
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            loginPage.style.display = 'none';
-            dashboardPage.style.display = 'block';
-        });
-
+        loginBtn.addEventListener('click', () => { homePage.style.display = 'none'; loginPage.style.display = 'flex'; });
+        loginForm.addEventListener('submit', (e) => { e.preventDefault(); loginPage.style.display = 'none'; dashboardPage.style.display = 'block'; });
         logoutBtn.addEventListener('click', () => {
             dashboardPage.style.display = 'none';
             homePage.style.display = 'block';
             document.getElementById('resultsSection').classList.add('hidden');
             document.getElementById('dnaSequenceInput').value = '';
         });
-        
         const setToggle = (active, inactive) => {
-             active.classList.add('bg-white', 'text-black');
-             active.classList.remove('text-gray-400');
-             inactive.classList.remove('bg-white', 'text-black');
-             inactive.classList.add('text-gray-400');
+             active.classList.add('bg-white', 'text-black'); active.classList.remove('text-gray-400');
+             inactive.classList.remove('bg-white', 'text-black'); inactive.classList.add('text-gray-400');
         };
         userToggle.addEventListener('click', () => setToggle(userToggle, adminToggle));
         adminToggle.addEventListener('click', () => setToggle(adminToggle, userToggle));
 
-        // --- Dashboard Analysis Simulation ---
+        // ===============================================================
+        // ================== API INTEGRATION STARTS HERE ================
+        // ===============================================================
         const analyzeBtn = document.getElementById('analyzeBtn');
         const resultsSection = document.getElementById('resultsSection');
-        const pipelineStatusContainer = document.getElementById('pipelineStatus');
-        let abundanceChartInstance = null;
+        const pipelineStatusEl = document.getElementById('pipelineStatus');
+        const classificationResultEl = document.getElementById('classificationResult');
+        const analyzeButtonText = 'INITIATE ANALYSIS';
         
-        const pipelineSteps = ["PREPROCESSING", "GENE_EXTRACTION", "EMBEDDING", "CLASSIFICATION", "REPORTING"];
+        // Your deployed model's endpoint URL
+        const API_ENDPOINT = 'https://dnabert-classifier-83913461974.asia-south2.run.app/predict';
 
-        function updatePipelineStatus(stepIndex, status) {
-            const stepElement = document.getElementById(`step-${stepIndex}`);
-            if (!stepElement) return;
-            stepElement.classList.remove('text-gray-500');
-            if (status === 'running') {
-                stepElement.innerHTML = `> ${pipelineSteps[stepIndex]}... <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin ml-2"></div>`;
-                stepElement.classList.add('text-white');
-            } else if (status === 'done') {
-                stepElement.innerHTML = `> ${pipelineSteps[stepIndex]} [OK]`;
-                stepElement.classList.add('text-green-400');
-            }
-        }
-
-        analyzeBtn.addEventListener('click', () => {
+        analyzeBtn.addEventListener('click', async () => {
             const dnaInput = document.getElementById('dnaSequenceInput');
-            if (dnaInput.value.trim() === "") {
-                dnaInput.value = "> GATCCTCCAGENTTAGTTCGCTTGCACTGAATAGACCCGTCACACACAGGAGAGTTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAGGGTGAGGGTCGGCTGTTCCTAGGGCCGAGGTCGTGAGTGGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT";
-            }
-            resultsSection.classList.remove('hidden');
-            
-            pipelineStatusContainer.innerHTML = pipelineSteps.map((step, index) => `
-                <div id="step-${index}" class="flex items-center text-gray-500">${step}</div>
-                ${index < pipelineSteps.length - 1 ? '<div class="flex-grow h-px bg-[#27272a] hidden md:block mx-4"></div>' : ''}
-            `).join('');
+            let sequence = dnaInput.value.trim().toUpperCase();
 
-            let currentStep = 0;
-            const processNextStep = () => {
-                if (currentStep > 0) updatePipelineStatus(currentStep - 1, 'done');
-                if (currentStep < pipelineSteps.length) {
-                    updatePipelineStatus(currentStep, 'running');
-                    currentStep++;
-                    setTimeout(processNextStep, 800 + Math.random() * 400);
-                } else {
-                    populateResults();
+            if (sequence === "") {
+                sequence = "GATCCTCCAGENTTAGTTCGCTTGCACTGAATAGACCCGTCACACACAGGAGAGTTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAGGGTGAGGGTCGGCTGTTCCTAGGGCCGAGGTCGTGAGTGGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT";
+                dnaInput.value = `> Using example sequence...\n${sequence}`;
+            }
+            
+            // Show results section and reset UI for a new analysis
+            resultsSection.classList.remove('hidden');
+            classificationResultEl.innerHTML = '';
+            pipelineStatusEl.innerHTML = '<span class="text-yellow-400">Sending request to AI model...</span>';
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'ANALYZING...';
+
+            try {
+                // Make the API call to your Cloud Run endpoint
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ sequence: sequence })
+                });
+
+                // Update status based on API response
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error (${response.status}): ${errorText}`);
                 }
-            };
-            processNextStep();
+                
+                pipelineStatusEl.innerHTML = '<span class="text-green-400">Response received. [OK]</span>';
+                const data = await response.json();
+                populateResults(data);
+
+            } catch (error) {
+                console.error('API Call Failed:', error);
+                let errorMessage = `Error: ${error.message}`;
+                // Check for a TypeError, which often indicates a CORS or network issue.
+                if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                    errorMessage = `
+                        <div class="text-left space-y-2">
+                            <p><b>API Connection Error: Failed to fetch.</b></p>
+                            <p class="text-gray-400">This is a standard browser security feature called CORS (Cross-Origin Resource Sharing) preventing this web page from calling your API. The fix must be applied to your Python server code.</p>
+                            <p><b>SOLUTION: Update your server files and redeploy.</b></p>
+                            <div class="text-xs space-y-2">
+                                <p><b>1. Update <code>requirements.txt</code>:</b> Add this line:</p>
+                                <pre class="bg-black p-2 border border-[#27272a] text-white">flask-cors</pre>
+                                <p><b>2. Update <code>app.py</code>:</b> Add the two highlighted lines to your Flask application:</p>
+                                <pre class="bg-black p-2 border border-[#27272a] text-white">from flask import Flask, request, jsonify
+<span class="text-green-400">from flask_cors import CORS  # &lt;-- ADD THIS LINE</span>
+...
+app = Flask(__name__)
+<span class="text-green-400">CORS(app)  # &lt;-- AND ADD THIS LINE</span>
+...</pre>
+                                <p><b>3. Rebuild and Redeploy:</b> You must now run the <code>docker build ...</code> and <code>docker push ...</code> commands again, then deploy a new revision in Google Cloud Run with the updated container.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                pipelineStatusEl.innerHTML = `<div class="text-red-500 p-4 border border-red-500/50 bg-red-500/10">${errorMessage}</div>`;
+                populateResults(null); // Clear the results on error
+            } finally {
+                // Re-enable the button after the analysis is complete or fails
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = analyzeButtonText;
+            }
         });
         
-        function populateResults() {
-            const mockResults = {
-                classification: [
-                    { level: 'Kingdom', value: 'Eukaryota', c: 0.99 }, { level: 'Phylum', value: 'Annelida', c: 0.92 },
-                    { level: 'Class', value: 'Polychaeta', c: 0.88 }, { level: 'Order', value: 'Sabellida', c: 0.81 },
-                    { level: 'Family', value: 'Serpulidae', c: 0.75 },
-                ],
-                genes: {
-                    '18s': 'GTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAG',
-                    'coi': 'GGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT'
-                },
-                abundance: [
-                    { t: 'Annelida', v: 45 }, { t: 'Cnidaria', v: 22 }, { t: 'Porifera', v: 15 },
-                    { t: 'Arthropoda', v: 10 }, { t: 'NOVEL_CLUSTER_A', v: 8 },
-                ],
-                novelty: {
-                    score: 0.85,
-                    msg: "High probability of novel taxa in 'NOVEL_CLUSTER_A'. Sequence shows significant divergence from known Serpulidae genetic markers."
-                }
-            };
-            document.getElementById('classificationResult').innerHTML = mockResults.classification.map(c => `
-                <div class="flex justify-between items-center"><span class="text-gray-400">${c.level.padEnd(10, ' ')}:</span><span class="text-white">${c.value}</span><span class="text-gray-500">CONF:${(c.c*100).toFixed(0)}%</span></div>`).join('');
+        function populateResults(apiData) {
+            // Populate the Taxonomic Classification card with data from the API
+            if (apiData) {
+                classificationResultEl.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">Predicted Group:</span>
+                        <span class="text-white font-semibold">${apiData.predicted_group || 'N/A'}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">Predicted Taxa:</span>
+                        <span class="text-white font-semibold">${apiData.predicted_taxa || 'N/A'}</span>
+                    </div>`;
+            } else {
+                classificationResultEl.innerHTML = '<div class="text-gray-500">Analysis failed. See status for details.</div>';
+            }
             
-            document.getElementById('gene18s').textContent = mockResults.genes['18s'];
-            document.getElementById('geneCOI').textContent = mockResults.genes['coi'];
+            // Update other sections to indicate data is not available from this specific endpoint
+            document.getElementById('gene18s').textContent = 'Data not available from this endpoint.';
+            document.getElementById('geneCOI').textContent = 'Data not available from this endpoint.';
+            document.getElementById('noveltyResult').innerHTML = `<p class="text-sm text-gray-400">Data not available from this endpoint.</p>`;
             
-            document.getElementById('noveltyResult').innerHTML = `<p class="text-sm text-gray-400 mb-2">${mockResults.novelty.msg}</p><div class="text-xl font-bold text-white">${(mockResults.novelty.score * 100).toFixed(1)}% DIVERGENCE</div>`;
-            
+            // Clear or update the chart to reflect the data mismatch
+            const abundanceChartInstance = Chart.getChart('abundanceChart');
+            if(abundanceChartInstance) {
+                abundanceChartInstance.destroy();
+            }
             const ctx = document.getElementById('abundanceChart').getContext('2d');
-            if(abundanceChartInstance) abundanceChartInstance.destroy();
-            
             Chart.defaults.font.family = "'Roboto Mono', monospace";
-            abundanceChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: mockResults.abundance.map(a => a.t),
-                    datasets: [{
-                        label: 'Abundance',
-                        data: mockResults.abundance.map(a => a.v),
-                        backgroundColor: mockResults.abundance.map(a => a.t.startsWith('NOVEL') ? '#6b7280' : 'rgba(255, 255, 255, 0.8)'),
-                    }]
-                },
-                options: {
-                    responsive: true, indexAxis: 'y',
-                    scales: {
-                        y: { ticks: { color: '#9ca3af', font: {size: 10} }, grid: { color: '#27272a' } },
-                        x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
+            new Chart(ctx, {
+                 type: 'bar',
+                 data: { labels: [''], datasets: [{ data: [] }] },
+                 options: {
+                     indexAxis: 'y',
+                     scales: {
+                         y: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } },
+                         x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
+                     },
+                     plugins: {
+                         title: { display: true, text: 'Data not available', color: '#6b7280', font: {size: 10} },
+                         legend: { display: false }
+                     }
+                 }
             });
         }
     </script>
