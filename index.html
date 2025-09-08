@@ -62,6 +62,7 @@
         .btn-primary:disabled {
             color: #6b7280;
             border-color: #3f3f46;
+            background-color: transparent;
             cursor: not-allowed;
         }
         .reveal {
@@ -100,28 +101,20 @@
 <body class="antialiased">
     <canvas id="bg-dna-canvas"></canvas>
     <div class="content-wrapper">
-        <!-- =============================================================== -->
-        <!-- ======================== LANDING PAGE ========================= -->
-        <!-- =============================================================== -->
+        <!-- LANDING PAGE -->
         <div id="homePage">
             <header class="fixed top-0 left-0 right-0 z-50">
                 <nav class="container mx-auto px-6 py-4 flex justify-between items-center border-b border-gray-800 bg-black/50 backdrop-blur-md">
-                    <div class="text-lg font-bold text-white tracking-widest">
-                        <a href="#">DEEPGEN_AI</a>
-                    </div>
+                    <div class="text-lg font-bold text-white tracking-widest"><a href="#">DEEPGEN_AI</a></div>
                     <div class="hidden md:flex items-center space-x-8 text-sm uppercase">
                         <a href="#problem" class="text-gray-400 hover:text-white transition">01_Problem</a>
                         <a href="#solution" class="text-gray-400 hover:text-white transition">02_Solution</a>
                         <a href="#tech" class="text-gray-400 hover:text-white transition">03_System</a>
                     </div>
-                    <button id="loginBtn" class="btn-primary font-medium py-2 px-4 text-xs">
-                        Engage Platform
-                    </button>
+                    <button id="loginBtn" class="btn-primary font-medium py-2 px-4 text-xs">Engage Platform</button>
                 </nav>
             </header>
-
             <main class="container mx-auto px-6">
-                <!-- Hero Section -->
                 <section class="min-h-screen flex flex-col justify-center items-start pt-20">
                     <div class="w-full lg:w-1/2">
                         <div class="text-left">
@@ -132,129 +125,84 @@
                             <p class="text-base text-gray-400 mb-8 font-light max-w-lg">
                                A high-throughput pipeline to classify eukaryotic taxa and assess deep-sea biodiversity directly from raw environmental DNA, bypassing the limitations of conventional reference databases.
                             </p>
-                            <a href="#problem" class="btn-primary font-semibold py-3 px-6 text-sm">
-                                View Mission Brief
-                            </a>
+                            <a href="#problem" class="btn-primary font-semibold py-3 px-6 text-sm">View Mission Brief</a>
                         </div>
                     </div>
                 </section>
-                
-                <!-- Helper function to generate section titles -->
-                <script>
-                    const createSectionTitle = (number, title) => `
-                        <div data-reveal class="flex items-center gap-4 py-24">
-                            <span class="section-title text-gray-500">${number}</span>
-                            <span class="section-title text-white">${title}</span>
-                            <div class="line"></div>
-                        </div>
-                    `;
-                </script>
-
-                <!-- Problem Section -->
+                <script> const createSectionTitle = (n, t) => `<div data-reveal class="flex items-center gap-4 py-24"><span class="section-title text-gray-500">${n}</span><span class="section-title text-white">${t}</span><div class="line"></div></div>`; </script>
                 <section id="problem">
                     <script>document.write(createSectionTitle('01', 'Problem Statement'))</script>
                     <div class="grid md:grid-cols-2 gap-px bg-[#27272a]">
-                        <div class="card p-8 reveal" data-reveal>
-                            <h3 class="text-xl font-semibold text-white mb-4">// Incomplete Databases</h3>
-                            <p class="text-gray-400 font-light">
-                               Deep-sea organisms are critically underrepresented in genetic reference databases. This data void results in misclassification, unassigned reads, and a fundamental underestimation of true biodiversity.
-                            </p>
-                        </div>
-                        <div class="card p-8 reveal" data-reveal style="transition-delay: 150ms">
-                            <h3 class="text-xl font-semibold text-white mb-4">// Computational Bottlenecks</h3>
-                            <p class="text-gray-400 font-light">
-                                Legacy bioinformatic pipelines are computationally expensive and inefficient for novel discovery. Their reliance on sequence alignment against flawed databases is a primary limiting factor.
-                            </p>
-                        </div>
+                        <div class="card p-8 reveal" data-reveal><h3 class="text-xl font-semibold text-white mb-4">// Incomplete Databases</h3><p class="text-gray-400 font-light">Deep-sea organisms are critically underrepresented in genetic reference databases. This data void results in misclassification, unassigned reads, and a fundamental underestimation of true biodiversity.</p></div>
+                        <div class="card p-8 reveal" data-reveal style="transition-delay: 150ms"><h3 class="text-xl font-semibold text-white mb-4">// Computational Bottlenecks</h3><p class="text-gray-400 font-light">Legacy bioinformatic pipelines are computationally expensive and inefficient for novel discovery. Their reliance on sequence alignment against flawed databases is a primary limiting factor.</p></div>
                     </div>
                 </section>
-
-                <!-- Solution Section -->
                 <section id="solution">
                     <script>document.write(createSectionTitle('02', 'Proposed Solution'))</script>
                     <div class="card p-8 md:p-12 border border-[#27272a] reveal" data-reveal>
-                       <p class="text-base text-gray-300 leading-relaxed font-light">
-                            Our AI-driven pipeline leverages deep learning and unsupervised clustering to analyze eDNA without primary reliance on existing databases. The system is designed to:
-                        </p>
+                       <p class="text-base text-gray-300 leading-relaxed font-light">Our AI-driven pipeline leverages deep learning and unsupervised clustering to analyze eDNA without primary reliance on existing databases. The system is designed to:</p>
                         <ul class="mt-8 space-y-6 text-sm">
-                            <li class="flex items-start">
-                                <span class="text-white mr-4 mt-1">[+]</span>
-                                <span><strong class="text-white font-medium">CLASSIFY TAXA DIRECTLY:</strong> A fine-tuned DNA-BERT transformer model interprets raw sequence data, enabling classification without perfect database matches.</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="text-white mr-4 mt-1">[+]</span>
-                                <span><strong class="text-white font-medium">DISCOVER NOVEL SPECIES:</strong> Unsupervised clustering algorithms (DBSCAN, k-means) identify and group unknown sequences, flagging potential new taxa for targeted analysis.</span>
-                            </li>
-                             <li class="flex items-start">
-                                <span class="text-white mr-4 mt-1">[+]</span>
-                                <span><strong class="text-white font-medium">GENERATE ECOLOGICAL INSIGHTS:</strong> Rapidly produce accurate estimations of species abundance and community structure to inform conservation and research priorities.</span>
-                            </li>
+                            <li class="flex items-start"><span class="text-white mr-4 mt-1">[+]</span><span><strong class="text-white font-medium">CLASSIFY TAXA DIRECTLY:</strong> A fine-tuned DNA-BERT transformer model interprets raw sequence data, enabling classification without perfect database matches.</span></li>
+                            <li class="flex items-start"><span class="text-white mr-4 mt-1">[+]</span><span><strong class="text-white font-medium">DISCOVER NOVEL SPECIES:</strong> Unsupervised clustering algorithms (DBSCAN, k-means) identify and group unknown sequences, flagging potential new taxa for targeted analysis.</span></li>
+                             <li class="flex items-start"><span class="text-white mr-4 mt-1">[+]</span><span><strong class="text-white font-medium">GENERATE ECOLOGICAL INSIGHTS:</strong> Rapidly produce accurate estimations of species abundance and community structure to inform conservation and research priorities.</span></li>
                         </ul>
                     </div>
                 </section>
-                
-                <!-- Technology Section -->
                 <section id="tech">
                     <script>document.write(createSectionTitle('03', 'System Architecture'))</script>
                     <div class="card p-8 flex justify-center items-center border border-[#27272a] reveal" data-reveal>
-                       <p class="text-center text-gray-400 max-w-4xl font-light text-sm">
-                           SYSTEM INGESTS RAW eDNA DATA -> PREPROCESSING MODULE EXTRACTS 18S rRNA & COI MARKERS -> DATA IS VECTORIZED BY A FINE-TUNED DNA-BERT TRANSFORMER -> EMBEDDINGS ARE PROCESSED VIA DUAL PATHWAYS: [A] DEEP LEARNING FOR CLASSIFICATION, [B] UNSUPERVISED CLUSTERING FOR NOVELTY DETECTION -> OUTPUT GENERATION: TAXONOMIC GROUPING, ABUNDANCE ESTIMATION, ECOLOGICAL INSIGHTS.
-                       </p>
+                       <p class="text-center text-gray-400 max-w-4xl font-light text-sm">SYSTEM INGESTS RAW eDNA DATA -> PREPROCESSING MODULE EXTRACTS 18S rRNA & COI MARKERS -> DATA IS VECTORIZED BY A FINE-TUNED DNA-BERT TRANSFORMER -> EMBEDDINGS ARE PROCESSED VIA DUAL PATHWAYS: [A] DEEP LEARNING FOR CLASSIFICATION, [B] UNSUPERVISED CLUSTERING FOR NOVELTY DETECTION -> OUTPUT GENERATION: TAXONOMIC GROUPING, ABUNDANCE ESTIMATION, ECOLOGICAL INSIGHTS.</p>
                     </div>
                 </section>
                  <div class="h-24"></div>
             </main>
         </div>
 
-        <!-- =============================================================== -->
-        <!-- ========================== LOGIN PAGE ========================= -->
-        <!-- =============================================================== -->
+        <!-- LOGIN PAGE -->
         <div id="loginPage" class="hidden min-h-screen flex items-center justify-center p-4">
              <div class="w-full max-w-sm">
                 <div class="card p-8 space-y-6 border border-[#27272a]">
                     <h2 class="text-lg font-bold text-center text-white tracking-widest">// AUTHENTICATION REQUIRED</h2>
-                    
                     <div>
-                        <div class="flex border border-[#27272a]">
-                            <button id="userToggle" class="w-1/2 py-2 text-sm font-medium bg-white text-black">USER</button>
-                            <button id="adminToggle" class="w-1/2 py-2 text-sm font-medium text-gray-400">ADMIN</button>
-                        </div>
+                        <div class="flex border border-[#27272a]"><button id="userToggle" class="w-1/2 py-2 text-sm font-medium bg-white text-black">USER</button><button id="adminToggle" class="w-1/2 py-2 text-sm font-medium text-gray-400">ADMIN</button></div>
                     </div>
-                    
                     <form id="loginForm" class="space-y-4">
-                        <div>
-                            <label for="email" class="text-xs font-medium text-gray-400">EMAIL_ADDR</label>
-                            <input type="email" id="email" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm" value="user@cmlre.gov">
-                        </div>
-                        <div>
-                            <label for="password" class="text-xs font-medium text-gray-400">PASSWORD</label>
-                            <input type="password" id="password" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none" value="password">
-                        </div>
-                        <button type="submit" class="w-full btn-primary font-bold py-3 px-4 text-xs">
-                            EXECUTE LOGIN
-                        </button>
+                        <div><label for="email" class="text-xs font-medium text-gray-400">EMAIL_ADDR</label><input type="email" id="email" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm" value="user@cmlre.gov"></div>
+                        <div><label for="password" class="text-xs font-medium text-gray-400">PASSWORD</label><input type="password" id="password" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none" value="password"></div>
+                        <button type="submit" class="w-full btn-primary font-bold py-3 px-4 text-xs">EXECUTE LOGIN</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- =============================================================== -->
-        <!-- ======================= DASHBOARD PAGE ======================== -->
-        <!-- =============================================================== -->
+        <!-- DASHBOARD PAGE -->
         <div id="dashboardPage" class="hidden min-h-screen container mx-auto px-6 py-8">
             <div class="flex justify-between items-center mb-8 border-b border-[#27272a] pb-4">
                 <h1 class="text-xl font-bold text-white tracking-widest">// ANALYSIS DASHBOARD</h1>
                 <button id="logoutBtn" class="text-gray-400 hover:text-white transition text-xs uppercase">LOGOUT</button>
             </div>
 
-            <!-- Input Section -->
-            <div class="card p-6 mb-8 border border-[#27272a]">
-                <h2 class="text-lg font-semibold text-white mb-4">// SUBMIT eDNA SEQUENCE</h2>
-                <textarea id="dnaSequenceInput" rows="6" class="w-full p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white outline-none text-sm" placeholder="> Paste raw eDNA sequence here..."></textarea>
-                <div class="mt-4 text-right">
-                    <button id="analyzeBtn" class="btn-primary font-bold py-2 px-5 text-xs">
-                        INITIATE ANALYSIS
+            <!-- Analysis Input Sections -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <!-- Single Sequence Analysis -->
+                <div class="card p-6 border border-[#27272a]">
+                    <h2 class="text-lg font-semibold text-white mb-4">// SINGLE SEQUENCE ANALYSIS</h2>
+                    <textarea id="dnaSequenceInput" rows="4" class="w-full p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white outline-none text-sm" placeholder="> Paste raw eDNA sequence here..."></textarea>
+                    <div class="mt-4 text-right">
+                        <button id="analyzeBtn" class="btn-primary font-bold py-2 px-5 text-xs">INITIATE ANALYSIS</button>
+                    </div>
+                </div>
+                <!-- Batch Analysis -->
+                <div class="card p-6 border border-[#27272a]">
+                    <h2 class="text-lg font-semibold text-white mb-4">// BATCH ANALYSIS (CSV)</h2>
+                    <p class="text-xs text-gray-400 mb-4">Upload a CSV file with 'sample_id' and 'sequence' columns.</p>
+                    <input type="file" id="csvFileInput" class="hidden" accept=".csv">
+                    <button id="csvUploadBtn" class="w-full border border-dashed border-[#27272a] hover:border-white transition py-4 text-gray-400 text-sm">
+                        CLICK TO UPLOAD CSV FILE
                     </button>
+                    <div class="mt-4 text-right">
+                        <button id="batchAnalyzeBtn" class="btn-primary font-bold py-2 px-5 text-xs" disabled>ANALYZE BATCH</button>
+                    </div>
                 </div>
             </div>
 
@@ -271,19 +219,6 @@
                             <h3 class="text-lg font-semibold text-white mb-4">// TAXONOMIC CLASSIFICATION</h3>
                             <div id="classificationResult" class="space-y-3 text-sm"></div>
                         </div>
-                        <div class="card p-6 border border-[#27272a]">
-                            <h3 class="text-lg font-semibold text-white mb-4">// EXTRACTED MARKER GENES</h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <h4 class="font-semibold text-white text-sm">18S_rRNA_GENE_FRAGMENT</h4>
-                                    <p id="gene18s" class="text-xs break-all bg-black p-3 mt-2 border border-[#27272a]"></p>
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-white text-sm">COI_GENE_FRAGMENT</h4>
-                                    <p id="geneCOI" class="text-xs break-all bg-black p-3 mt-2 border border-[#27272a]"></p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <div class="space-y-8">
                         <div class="card p-6 border border-[#27272a]">
@@ -292,7 +227,7 @@
                         </div>
                         <div class="card p-6 border border-[#27272a]">
                             <h3 class="text-lg font-semibold text-white mb-4">// NOVELTY DETECTION</h3>
-                            <div id="noveltyResult" class="text-center p-4 bg-black border border-[#27272a]"></div>
+                            <div id="noveltyResult" class="text-sm p-4 bg-black border border-[#27272a]"></div>
                         </div>
                     </div>
                 </div>
@@ -300,7 +235,6 @@
              <div class="h-24"></div>
         </div>
     </div>
-
 
     <script type="module">
         import * as THREE from 'three';
@@ -475,124 +409,221 @@
         // ================== API INTEGRATION STARTS HERE ================
         // ===============================================================
         const analyzeBtn = document.getElementById('analyzeBtn');
+        const batchAnalyzeBtn = document.getElementById('batchAnalyzeBtn');
+        const csvFileInput = document.getElementById('csvFileInput');
+        const csvUploadBtn = document.getElementById('csvUploadBtn');
+        
         const resultsSection = document.getElementById('resultsSection');
         const pipelineStatusEl = document.getElementById('pipelineStatus');
         const classificationResultEl = document.getElementById('classificationResult');
+        const noveltyResultEl = document.getElementById('noveltyResult');
         const analyzeButtonText = 'INITIATE ANALYSIS';
         
-        // Your deployed model's endpoint URL
         const API_ENDPOINT = 'https://dnabert-classifier-83913461974.asia-south2.run.app/predict';
+        let parsedCsvData = [];
 
+        // --- Single Sequence Analysis ---
         analyzeBtn.addEventListener('click', async () => {
             const dnaInput = document.getElementById('dnaSequenceInput');
-            let sequence = dnaInput.value.trim().toUpperCase();
+            let rawSequence = dnaInput.value.trim();
 
-            if (sequence === "") {
-                sequence = "GATCCTCCAGENTTAGTTCGCTTGCACTGAATAGACCCGTCACACACAGGAGAGTTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAGGGTGAGGGTCGGCTGTTCCTAGGGCCGAGGTCGTGAGTGGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT";
-                dnaInput.value = `> Using example sequence...\n${sequence}`;
+            if (rawSequence === "") {
+                rawSequence = "> Using example sequence...\nGATCCTCCAGENTTAGTTCGCTTGCACTGAATAGACCCGTCACACACAGGAGAGTTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAGGGTGAGGGTCGGCTGTTCCTAGGGCCGAGGTCGTGAGTGGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT";
+                dnaInput.value = rawSequence;
             }
             
-            // Show results section and reset UI for a new analysis
-            resultsSection.classList.remove('hidden');
-            classificationResultEl.innerHTML = '';
-            pipelineStatusEl.innerHTML = '<span class="text-yellow-400">Sending request to AI model...</span>';
-            analyzeBtn.disabled = true;
-            analyzeBtn.textContent = 'ANALYZING...';
+            await performSingleAnalysis(rawSequence);
+        });
 
-            try {
-                // Make the API call to your Cloud Run endpoint
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ sequence: sequence })
-                });
+        // --- Batch CSV Analysis ---
+        csvUploadBtn.addEventListener('click', () => csvFileInput.click());
 
-                // Update status based on API response
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API Error (${response.status}): ${errorText}`);
-                }
-                
-                pipelineStatusEl.innerHTML = '<span class="text-green-400">Response received. [OK]</span>';
-                const data = await response.json();
-                populateResults(data);
+        csvFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const content = e.target.result;
+                        // Basic CSV parsing
+                        const rows = content.split('\n').filter(row => row.trim() !== '');
+                        const headers = rows[0].split(',').map(h => h.trim());
+                        const sampleIdIndex = headers.indexOf('sample_id');
+                        const sequenceIndex = headers.indexOf('sequence');
 
-            } catch (error) {
-                console.error('API Call Failed:', error);
-                let errorMessage = `Error: ${error.message}`;
-                // Check for a TypeError, which often indicates a CORS or network issue.
-                if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                    errorMessage = `
-                        <div class="text-left space-y-2">
-                            <p><b>API Connection Error: Failed to fetch.</b></p>
-                            <p class="text-gray-400">This is a standard browser security feature called CORS (Cross-Origin Resource Sharing) preventing this web page from calling your API. The fix must be applied to your Python server code.</p>
-                            <p><b>SOLUTION: Update your server files and redeploy.</b></p>
-                            <div class="text-xs space-y-2">
-                                <p><b>1. Update <code>requirements.txt</code>:</b> Add this line:</p>
-                                <pre class="bg-black p-2 border border-[#27272a] text-white">flask-cors</pre>
-                                <p><b>2. Update <code>app.py</code>:</b> Add the two highlighted lines to your Flask application:</p>
-                                <pre class="bg-black p-2 border border-[#27272a] text-white">from flask import Flask, request, jsonify
-<span class="text-green-400">from flask_cors import CORS  # &lt;-- ADD THIS LINE</span>
-...
-app = Flask(__name__)
-<span class="text-green-400">CORS(app)  # &lt;-- AND ADD THIS LINE</span>
-...</pre>
-                                <p><b>3. Rebuild and Redeploy:</b> You must now run the <code>docker build ...</code> and <code>docker push ...</code> commands again, then deploy a new revision in Google Cloud Run with the updated container.</p>
-                            </div>
-                        </div>
-                    `;
-                }
-                pipelineStatusEl.innerHTML = `<div class="text-red-500 p-4 border border-red-500/50 bg-red-500/10">${errorMessage}</div>`;
-                populateResults(null); // Clear the results on error
-            } finally {
-                // Re-enable the button after the analysis is complete or fails
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = analyzeButtonText;
+                        if (sampleIdIndex === -1 || sequenceIndex === -1) {
+                            throw new Error("CSV must contain 'sample_id' and 'sequence' columns.");
+                        }
+
+                        parsedCsvData = rows.slice(1).map(row => {
+                            const values = row.split(',');
+                            return {
+                                sample_id: values[sampleIdIndex].trim(),
+                                sequence: values[sequenceIndex].trim()
+                            };
+                        });
+                        
+                        csvUploadBtn.textContent = `${file.name} (${parsedCsvData.length} sequences) ready.`;
+                        batchAnalyzeBtn.disabled = false;
+                    } catch (err) {
+                        csvUploadBtn.textContent = 'Error parsing file. Check format.';
+                        console.error(err);
+                        parsedCsvData = [];
+                        batchAnalyzeBtn.disabled = true;
+                    }
+                };
+                reader.readAsText(file);
             }
         });
         
-        function populateResults(apiData) {
-            // Populate the Taxonomic Classification card with data from the API
+        batchAnalyzeBtn.addEventListener('click', async () => {
+            if (parsedCsvData.length === 0) return;
+
+            resultsSection.classList.remove('hidden');
+            let allResults = [];
+            
+            // UI setup for batch processing
+            pipelineStatusEl.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span>Processing batch...</span>
+                    <span id="batchProgressText">0 / ${parsedCsvData.length}</span>
+                </div>
+                <div class="w-full bg-[#27272a] h-1 mt-2">
+                    <div id="batchProgressBar" class="bg-white h-1" style="width: 0%"></div>
+                </div>`;
+            
+            batchAnalyzeBtn.disabled = true;
+            analyzeBtn.disabled = true;
+            
+            for (let i = 0; i < parsedCsvData.length; i++) {
+                const item = parsedCsvData[i];
+                try {
+                    const result = await callApi(item.sequence);
+                    allResults.push(result);
+                } catch (error) {
+                    console.error(`Error processing sample ${item.sample_id}:`, error);
+                    // Push a failed result to keep counts consistent
+                    allResults.push({ predicted_taxa: "ERROR" });
+                }
+                
+                // Update progress bar
+                const progress = ((i + 1) / parsedCsvData.length) * 100;
+                document.getElementById('batchProgressBar').style.width = `${progress}%`;
+                document.getElementById('batchProgressText').textContent = `${i + 1} / ${parsedCsvData.length}`;
+            }
+            
+            pipelineStatusEl.innerHTML = `<span class="text-green-400">Batch processing complete. [OK]</span>`;
+            updateAbundanceChart(allResults);
+            
+            // Reset buttons
+            batchAnalyzeBtn.disabled = false;
+            analyzeBtn.disabled = false;
+        });
+
+        // --- Core API and UI Functions ---
+
+        async function performSingleAnalysis(rawSequence) {
+            resultsSection.classList.remove('hidden');
+            classificationResultEl.innerHTML = '';
+            pipelineStatusEl.innerHTML = '<span class="text-yellow-400">Validating sequence...</span>';
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'ANALYZING...';
+            
+            try {
+                const sequence = rawSequence.replace(/>.*/g, '').replace(/\s/g, '').toUpperCase();
+                const validDnaRegex = /^[ATCGN]+$/;
+                if (!validDnaRegex.test(sequence)) {
+                    throw new Error("Input contains invalid characters. Only A, T, G, C, and N are allowed.");
+                }
+
+                pipelineStatusEl.innerHTML = '<span class="text-yellow-400">Sending request to AI model...</span>';
+                const data = await callApi(sequence);
+                pipelineStatusEl.innerHTML = '<span class="text-green-400">Response received. [OK]</span>';
+                populateSingleResult(data);
+
+            } catch (error) {
+                console.error('API Call Failed:', error);
+                pipelineStatusEl.innerHTML = `<div class="text-red-500 p-2 border border-red-500/50 bg-red-500/10"><b>Error:</b> ${error.message}</div>`;
+                populateSingleResult(null);
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = analyzeButtonText;
+            }
+        }
+        
+        async function callApi(sequence) {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sequence: sequence })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`API Error (${response.status}): ${errorText}`);
+            }
+            return await response.json();
+        }
+
+        function populateSingleResult(apiData) {
             if (apiData) {
                 classificationResultEl.innerHTML = `
                     <div class="flex justify-between items-center">
                         <span class="text-gray-400">Predicted Group:</span>
                         <span class="text-white font-semibold">${apiData.predicted_group || 'N/A'}</span>
+                        <span class="text-gray-500">CONF: ${(apiData.group_confidence * 100).toFixed(0)}%</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-gray-400">Predicted Taxa:</span>
                         <span class="text-white font-semibold">${apiData.predicted_taxa || 'N/A'}</span>
+                        <span class="text-gray-500">CONF: ${(apiData.taxa_confidence * 100).toFixed(0)}%</span>
                     </div>`;
+                noveltyResultEl.innerHTML = apiData.novelty_status;
             } else {
-                classificationResultEl.innerHTML = '<div class="text-gray-500">Analysis failed. See status for details.</div>';
+                classificationResultEl.innerHTML = '<div class="text-gray-500">Analysis failed. See status.</div>';
+                noveltyResultEl.innerHTML = 'N/A';
             }
+            // Clear abundance chart for single results
+            updateAbundanceChart([]);
+        }
+        
+        function updateAbundanceChart(results) {
+            const counts = results.reduce((acc, result) => {
+                const taxa = result.predicted_taxa || "Unknown";
+                acc[taxa] = (acc[taxa] || 0) + 1;
+                return acc;
+            }, {});
             
-            // Update other sections to indicate data is not available from this specific endpoint
-            document.getElementById('gene18s').textContent = 'Data not available from this endpoint.';
-            document.getElementById('geneCOI').textContent = 'Data not available from this endpoint.';
-            document.getElementById('noveltyResult').innerHTML = `<p class="text-sm text-gray-400">Data not available from this endpoint.</p>`;
+            const sortedTaxa = Object.entries(counts).sort((a, b) => b[1] - a[1]);
             
-            // Clear or update the chart to reflect the data mismatch
+            const labels = sortedTaxa.map(item => item[0]);
+            const data = sortedTaxa.map(item => item[1]);
+
             const abundanceChartInstance = Chart.getChart('abundanceChart');
-            if(abundanceChartInstance) {
-                abundanceChartInstance.destroy();
-            }
+            if(abundanceChartInstance) abundanceChartInstance.destroy();
+            
             const ctx = document.getElementById('abundanceChart').getContext('2d');
             Chart.defaults.font.family = "'Roboto Mono', monospace";
             new Chart(ctx, {
                  type: 'bar',
-                 data: { labels: [''], datasets: [{ data: [] }] },
+                 data: { 
+                     labels: labels, 
+                     datasets: [{ 
+                         label: 'Count',
+                         data: data,
+                         backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                     }] 
+                 },
                  options: {
                      indexAxis: 'y',
+                     responsive: true,
                      scales: {
-                         y: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } },
+                         y: { ticks: { color: '#9ca3af', font: {size: 10} }, grid: { color: '#27272a' } },
                          x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
                      },
                      plugins: {
-                         title: { display: true, text: 'Data not available', color: '#6b7280', font: {size: 10} },
-                         legend: { display: false }
+                         legend: { display: false },
+                         title: { display: labels.length === 0, text: 'No batch data to display', color: '#6b7280', font: {size: 10} },
                      }
                  }
             });
