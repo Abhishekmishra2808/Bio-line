@@ -1,0 +1,78 @@
+body {
+    font-family: 'Roboto Mono', monospace;
+    background-color: #000000;
+    color: #e5e7eb;
+    --grid-color: rgba(255, 255, 255, 0.07);
+    background-image:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+#bg-dna-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 0;
+    opacity: 0.25;
+    pointer-events: none;
+}
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+}
+.card {
+    background-color: rgba(0,0,0,0.5);
+    border: 1px solid #27272a;
+    backdrop-filter: blur(10px);
+}
+.btn-primary {
+    background-color: transparent;
+    color: #ffffff;
+    transition: all 0.3s ease;
+    border: 1px solid #ffffff;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.btn-primary:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+.btn-primary:disabled {
+    color: #6b7280;
+    border-color: #3f3f46;
+    background-color: transparent;
+    cursor: not-allowed;
+}
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.section-title {
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+.line {
+    height: 1px;
+    background-color: #27272a;
+    flex-grow: 1;
+}
+.text-scramble {
+    display: inline-block;
+}
+.blinking-cursor {
+    color: white;
+    animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+    50% { opacity: 0; }
+}

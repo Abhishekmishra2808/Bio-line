@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGen AI // System Administration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000000;
+            color: #e5e7eb;
+            --grid-color: rgba(255, 255, 255, 0.07);
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .card {
+            background-color: rgba(0,0,0,0.5);
+            border: 1px solid #27272a;
+            backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background-color: transparent;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            border: 1px solid #ffffff;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .btn-primary:disabled {
+            color: #6b7280;
+            border-color: #3f3f46;
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #18181b; border: 1px solid #3f3f46; color: #a1a1aa;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover { background-color: #27272a; border-color: #52525b; color: #ffffff; }
+        .btn-danger { background-color: #991b1b; border: 1px solid #dc2626; color: #fee2e2; }
+        .btn-danger:hover { background-color: #b91c1c; }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        .skeleton {
+            background-color: rgba(255, 255, 255, 0.05);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #27272a; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+        /* For iOS-style toggles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #34d399;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #34d399;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-black/50 border-r border-gray-800 flex-shrink-0 transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0">
+            <div class="px-6 py-4 border-b border-gray-800">
+                <h1 class="text-lg font-bold text-white tracking-widest">DEEPGEN_AI</h1>
+            </div>
+            <nav id="sidebar-nav" class="p-4 space-y-2">
+                <a href="#dashboard" class="flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md">
+                    <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h3M18 12h3M12 3v3M12 18v3M5.6 5.6l2.2 2.2M16.2 16.2l2.2 2.2M5.6 18.4l2.2-2.2M16.2 7.8l2.2-2.2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#users" class="flex items-center px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-800 rounded-md">
+                    <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M8.5 3a4 4 0 100 8 4 4 0 000-8zM20 8v6M23 11h-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span>User Management</span>
+                </a>
+                <a href="#monitor" class="flex items-center px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-800 rounded-md">
+                    <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span>Analysis Monitor</span>
+                </a>
+                <a href="#performance" class="flex items-center px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-800 rounded-md">
+                    <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span>Model Performance</span>
+                </a>
+                 <a href="#settings" class="flex items-center px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-800 rounded-md">
+                    <svg class="h-5 w-5 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span>System Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-black/50 border-b border-gray-800">
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <button id="sidebar-toggle" class="md:hidden mr-4 text-gray-400 hover:text-white">
+                            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18M3 6h18M3 18h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                        <h2 class="text-lg font-bold text-white tracking-widest">// SYSTEM ADMINISTRATION</h2>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="notifications-btn" class="text-gray-400 hover:text-white relative">
+                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                             <span class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-black"></span>
+                        </button>
+                        <div class="relative">
+                            <button id="profile-btn" class="flex items-center space-x-2 text-sm text-gray-300 hover:text-white">
+                                <img src="https://placehold.co/32x32/18181b/ffffff?text=A" alt="Admin" class="h-8 w-8 rounded-full border-2 border-gray-700">
+                                <span>Admin</span>
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                            </button>
+                        </div>
+                         <button id="logout-btn" class="text-gray-400 hover:text-white text-xs uppercase">Logout</button>
+                    </div>
+                </div>
+                 <div class="px-6 pb-3 text-xs text-gray-500">
+                    <span>Admin</span> / <span id="breadcrumb-active">Dashboard</span>
+                </div>
+            </header>
+
+            <!-- Main content area -->
+            <main id="main-content" class="flex-1 overflow-y-auto p-6">
+                <div id="dashboard-view" class="space-y-8">
+                    <!-- System Overview -->
+                    <section id="dashboard-section">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- API Status Card -->
+                            <div class="card p-5 reveal">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">API Status</h3>
+                                    <span class="h-3 w-3 bg-green-500 rounded-full" title="Operational"></span>
+                                </div>
+                                <div id="api-status-content" class="mt-4">
+                                   <p class="text-3xl font-semibold text-white">12ms</p>
+                                   <p class="text-xs text-green-400">99.99% Uptime</p>
+                                </div>
+                                 <div id="api-status-skeleton" class="hidden mt-4 space-y-2">
+                                    <div class="h-8 w-1/2 skeleton rounded"></div>
+                                    <div class="h-4 w-1/3 skeleton rounded"></div>
+                                </div>
+                            </div>
+                            <!-- Active Users Card -->
+                            <div class="card p-5 reveal" style="transition-delay: 100ms;">
+                                 <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">Active Users</h3>
+                                 <div id="active-users-content" class="mt-4">
+                                    <p class="text-3xl font-semibold text-white">1,428</p>
+                                    <p class="text-xs text-green-400">+5.2% last 24h</p>
+                                 </div>
+                                 <div id="active-users-skeleton" class="hidden mt-4 space-y-2">
+                                    <div class="h-8 w-1/2 skeleton rounded"></div>
+                                    <div class="h-4 w-1/3 skeleton rounded"></div>
+                                </div>
+                            </div>
+                             <!-- Processing Queue Card -->
+                            <div class="card p-5 reveal" style="transition-delay: 200ms;">
+                                 <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">Processing Queue</h3>
+                                 <div id="queue-content" class="mt-4">
+                                    <p class="text-3xl font-semibold text-white">87</p>
+                                    <p class="text-xs text-yellow-400">~15 min wait</p>
+                                </div>
+                                <div id="queue-skeleton" class="hidden mt-4 space-y-2">
+                                    <div class="h-8 w-1/2 skeleton rounded"></div>
+                                    <div class="h-4 w-1/3 skeleton rounded"></div>
+                                </div>
+                            </div>
+                             <!-- Model Accuracy Card -->
+                            <div class="card p-5 reveal" style="transition-delay: 300ms;">
+                                <h3 class="text-sm font-medium text-gray-400 uppercase tracking-wider">Model Accuracy</h3>
+                                <div id="accuracy-content" class="mt-4">
+                                    <p class="text-3xl font-semibold text-white">93.8%</p>
+                                    <p class="text-xs text-gray-500">v3.0.0-BERT (24k Seq / 35 Taxa)</p>
+                                </div>
+                                 <div id="accuracy-skeleton" class="hidden mt-4 space-y-2">
+                                    <div class="h-8 w-1/2 skeleton rounded"></div>
+                                    <div class="h-4 w-1/3 skeleton rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- User Management Section -->
+                        <section id="users-section" class="lg:col-span-2 reveal" style="transition-delay: 400ms;">
+                            <div class="card">
+                                <!-- NEW APPROVAL SECTION -->
+                                <div class="p-5 border-b border-gray-800">
+                                    <h4 class="text-base font-semibold text-white tracking-wider mb-4">New Registration Approvals</h4>
+                                    <div id="approval-list" class="space-y-3">
+                                        <!-- Pending users will be injected here by JS -->
+                                    </div>
+                                </div>
+                                <!-- EXISTING USER MANAGEMENT -->
+                                <div class="p-5 border-b border-gray-800 flex items-center justify-between">
+                                    <h3 class="text-base font-semibold text-white tracking-wider">User Management</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="text" id="user-search" placeholder="Search users..." class="bg-black border border-gray-700 text-xs p-2 rounded-md focus:ring-1 focus:ring-white outline-none">
+                                        <button id="export-users-btn" class="btn-secondary text-xs px-3 py-2 rounded-md">Export</button>
+                                    </div>
+                                </div>
+                                <div class="p-5">
+                                    <table class="w-full text-left text-sm">
+                                        <thead>
+                                            <tr class="border-b border-gray-800 text-xs text-gray-400 uppercase">
+                                                <th class="py-2"><input type="checkbox" id="select-all-users" class="bg-black border-gray-600"></th>
+                                                <th class="py-2">Email</th>
+                                                <th class="py-2">Role</th>
+                                                <th class="py-2">Last Login</th>
+                                                <th class="py-2 text-right">Analyses</th>
+                                                <th class="py-2 text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="user-table-body">
+                                            <!-- User data will be injected here by JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <!-- Analysis Monitoring Section -->
+                        <section id="monitor-section" class="reveal" style="transition-delay: 500ms;">
+                            <div class="card">
+                                 <div class="p-5 border-b border-gray-800">
+                                    <h3 class="text-base font-semibold text-white tracking-wider">Analysis Volume</h3>
+                                </div>
+                                <div class="p-5 relative h-64">
+                                    <canvas id="analysisVolumeChart"></canvas>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+
+                     <!-- Model Performance Section -->
+                    <section id="performance-section" class="reveal" style="transition-delay: 600ms;">
+                         <div class="card">
+                            <div class="p-5 border-b border-gray-800">
+                                <h3 class="text-base font-semibold text-white tracking-wider">Model Performance</h3>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-gray-800">
+                                 <div class="p-5 bg-black/50">
+                                     <h4 class="text-sm font-medium text-gray-400 mb-4">Accuracy Trend</h4>
+                                     <div class="relative h-40">
+                                        <canvas id="accuracyTrendChart"></canvas>
+                                     </div>
+                                 </div>
+                                 <div class="p-5 bg-black/50">
+                                     <h4 class="text-sm font-medium text-gray-400 mb-4">Confidence Distribution</h4>
+                                      <div class="relative h-40">
+                                        <canvas id="confidenceDistChart"></canvas>
+                                      </div>
+                                 </div>
+                                 <div class="p-5 bg-black/50">
+                                    <h4 class="text-sm font-medium text-gray-400 mb-4">A/B Test: v3.0 vs v2.0</h4>
+                                    <div class="space-y-4 text-xs">
+                                        <p><strong>Accuracy:</strong> <span class="text-green-400">+3.1%</span></p>
+                                        <p><strong>Taxa Coverage:</strong> <span class="text-green-400">+19</span></p>
+                                        <p><strong>Kingdoms:</strong> <span class="text-green-400">+2</span></p>
+                                        <button id="promote-model-btn" class="btn-primary w-full text-xs py-2 mt-4">Promote v3.0</button>
+                                    </div>
+                                 </div>
+                                 <div class="p-5 bg-black/50">
+                                     <h4 class="text-sm font-medium text-gray-400 mb-4">Deployment Timeline</h4>
+                                     <ul class="text-xs space-y-3">
+                                         <li class="flex items-start"><span class="text-green-400 mr-2 mt-1">●</span><div><strong>v3.0.0-BERT (24k Seq / 35 Taxa)</strong><span class="block text-gray-500">Active - Sep 12, 2025</span></div></li>
+                                         <li class="flex items-start"><span class="text-gray-500 mr-2 mt-1">●</span><div><strong>v2.0.0-BERT (11k Seq / 16 Taxa)</strong><span class="block text-gray-500">Aug 15, 2025</span></div></li>
+                                         <li class="flex items-start"><span class="text-gray-500 mr-2 mt-1">●</span><div><strong>v1.0.0-BERT (5k Seq / 9 Taxa)</strong><span class="block text-gray-500">Jul 01, 2025</span></div></li>
+                                     </ul>
+                                 </div>
+                            </div>
+                         </div>
+                    </section>
+                </div>
+                
+                <div id="settings-view" class="hidden space-y-8">
+                    <!-- System Settings Section -->
+                    <section id="settings-section" class="reveal">
+                        <div class="card">
+                           <div class="p-5 border-b border-gray-800">
+                                <h3 class="text-base font-semibold text-white tracking-wider">System Settings</h3>
+                            </div>
+                            <div class="p-5 space-y-8">
+                                <!-- Notification Settings -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">NOTIFICATION PREFERENCES</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-400">Email on analysis completion</span>
+                                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                <input type="checkbox" name="toggle" id="email-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-black border-4 appearance-none cursor-pointer" checked/>
+                                                <label for="email-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"></label>
+                                            </div>
+                                        </div>
+                                         <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-400">Email on new user registration</span>
+                                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                <input type="checkbox" name="toggle" id="user-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-black border-4 appearance-none cursor-pointer"/>
+                                                <label for="user-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Account Actions -->
+                                <div>
+                                     <h4 class="text-sm font-medium text-gray-300 mb-4">ACCOUNT</h4>
+                                     <div class="flex space-x-4">
+                                         <button id="change-password-btn" class="btn-secondary text-xs px-4 py-2 rounded-md">Change Password</button>
+                                         <button id="delete-account-btn" class="btn-danger text-xs px-4 py-2 rounded-md">Delete Account</button>
+                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center hidden z-50">
+        <div class="card p-8 rounded-lg max-w-sm w-full border border-gray-700">
+            <h3 class="text-lg font-bold text-white mb-4">Confirm Action</h3>
+            <p id="modal-text" class="text-gray-300 mb-6">Are you sure you want to proceed?</p>
+            <div class="flex justify-end space-x-4">
+                <button id="modal-cancel" class="btn-secondary text-sm px-4 py-2 rounded-md">Cancel</button>
+                <button id="modal-confirm" class="btn-danger text-sm px-4 py-2 rounded-md">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+<script src="admin.js"></script>
+</body>
+</html>
+

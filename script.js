@@ -1,0 +1,455 @@
+import * as THREE from 'three';
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- Section Title Creation ---
+    const createSectionTitle = (n, t) => `<div data-reveal class="flex items-center gap-4 py-24"><span class="section-title text-gray-500">${n}</span><span class="section-title text-white">${t}</span><div class="line"></div></div>`;
+    
+    const problemSection = document.getElementById('problem');
+    if (problemSection) {
+        const title = createSectionTitle('01', 'Problem Statement');
+        const content = problemSection.innerHTML;
+        problemSection.innerHTML = title + content;
+    }
+    const solutionSection = document.getElementById('solution');
+    if (solutionSection) {
+        const title = createSectionTitle('02', 'Proposed Solution');
+        const content = solutionSection.innerHTML;
+        solutionSection.innerHTML = title + content;
+    }
+    const techSection = document.getElementById('tech');
+    if (techSection) {
+        const title = createSectionTitle('03', 'System Architecture');
+        const content = techSection.innerHTML;
+        techSection.innerHTML = title + content;
+    }
+
+    // --- Background 3D DNA Model ---
+    const bgCanvas = document.getElementById('bg-dna-canvas');
+    if (bgCanvas) {
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x000000, 10, 40);
+        const camera = new THREE.PerspectiveCamera(75, bgCanvas.clientWidth / bgCanvas.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: bgCanvas, alpha: true, antialias: true });
+        renderer.setSize(bgCanvas.clientWidth, bgCanvas.clientHeight);
+        const ambientLight = new THREE.AmbientLight(0x40a0ff, 0.5);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0x80c0ff, 1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+        const group = new THREE.Group();
+        group.rotation.x = Math.PI / 8;
+        group.rotation.y = -Math.PI / 4;
+        const helixRadius = 3;
+        const helixHeight = 40;
+        const turnCount = 10;
+        const basePairs = 150;
+        const baseColors = [0x00aaff, 0x0088cc, 0x006699];
+        const createStrand = () => {
+            const curve = new THREE.CatmullRomCurve3(
+                Array.from({ length: 200 }, (_, i) => {
+                    const t = (i / 199) * helixHeight;
+                    return new THREE.Vector3(
+                        helixRadius * Math.cos(t * turnCount * Math.PI / helixHeight),
+                        t - helixHeight / 2,
+                        helixRadius * Math.sin(t * turnCount * Math.PI / helixHeight)
+                    );
+                })
+            );
+            const geometry = new THREE.TubeGeometry(curve, 100, 0.15, 12, false);
+            const material = new THREE.MeshPhongMaterial({ color: 0x0055aa, shininess: 30 });
+            return new THREE.Mesh(geometry, material);
+        };
+        const strand1 = createStrand();
+        const strand2 = createStrand();
+        strand2.rotation.y = Math.PI;
+        group.add(strand1, strand2);
+        for (let i = 0; i < basePairs; i++) {
+            const t = (i / (basePairs - 1)) * helixHeight;
+            const y = t - helixHeight / 2;
+            const angle = t * turnCount * Math.PI / helixHeight;
+            const start = new THREE.Vector3(helixRadius * Math.cos(angle), y, helixRadius * Math.sin(angle));
+            const end = new THREE.Vector3(helixRadius * Math.cos(angle + Math.PI), y, helixRadius * Math.sin(angle + Math.PI));
+            const distance = start.distanceTo(end);
+            const position = start.clone().add(end).divideScalar(2);
+            const cylinderGeometry = new THREE.CylinderGeometry(0.08, 0.08, distance, 8);
+            const cylinderMaterial = new THREE.MeshPhongMaterial({
+                color: baseColors[i % baseColors.length],
+                emissive: baseColors[i % baseColors.length],
+                emissiveIntensity: 0.3
+            });
+            const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+            cylinder.position.copy(position);
+            cylinder.lookAt(end);
+            cylinder.rotateX(Math.PI / 2);
+            group.add(cylinder);
+        }
+        scene.add(group);
+        const initialCameraZ = 40;
+        const finalCameraZ = 5;
+        camera.position.z = initialCameraZ;
+        const animate = () => {
+            requestAnimationFrame(animate);
+            group.rotation.y += 0.0005;
+            renderer.render(scene, camera);
+        };
+        animate();
+        function handleScrollAnimation() {
+            const scrollY = window.scrollY;
+            const animationScrollHeight = window.innerHeight;
+            const scrollFraction = Math.min(scrollY / animationScrollHeight, 1);
+            const easedFraction = 1 - Math.pow(1 - scrollFraction, 3);
+            camera.position.z = THREE.MathUtils.lerp(initialCameraZ, finalCameraZ, easedFraction);
+            camera.position.y = THREE.MathUtils.lerp(0, helixHeight / 4, easedFraction);
+            group.rotation.y = THREE.MathUtils.lerp(-Math.PI / 4, Math.PI, easedFraction);
+            group.rotation.x = THREE.MathUtils.lerp(Math.PI / 8, -Math.PI / 16, easedFraction);
+        }
+        window.addEventListener('scroll', handleScrollAnimation, { passive: true });
+        window.addEventListener('resize', () => {
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+            camera.aspect = newWidth / newHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(newWidth, newHeight);
+        });
+    }
+    
+    // --- Text Scramble Effect ---
+    class TextScrambleEffect {
+        constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
+        setText(newText) {
+            const oldText = this.el.innerText;
+            const length = Math.max(oldText.length, newText.length);
+            const promise = new Promise((resolve) => this.resolve = resolve);
+            this.queue = [];
+            for (let i = 0; i < length; i++) {
+                const from = oldText[i] || ''; const to = newText[i] || '';
+                const start = Math.floor(Math.random() * 40); const end = start + Math.floor(Math.random() * 40);
+                this.queue.push({ from, to, start, end });
+            }
+            cancelAnimationFrame(this.frameRequest); this.frame = 0; this.update(); return promise;
+        }
+        update() {
+            let output = ''; let complete = 0;
+            for (let i = 0, n = this.queue.length; i < n; i++) {
+                let { from, to, start, end, char } = this.queue[i];
+                if (this.frame >= end) { complete++; output += to; } 
+                else if (this.frame >= start) {
+                    if (!char || Math.random() < 0.28) { char = this.randomChar(); this.queue[i].char = char; }
+                    output += `<span class="opacity-50">${char}</span>`;
+                } else { output += from; }
+            }
+            this.el.innerHTML = output;
+            if (complete === this.queue.length) { this.resolve(); } 
+            else { this.frameRequest = requestAnimationFrame(this.update); this.frame++; }
+        }
+        randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
+    }
+    
+    const scrambleElements = document.querySelectorAll('.text-scramble');
+    scrambleElements.forEach(el => {
+        const fx = new TextScrambleEffect(el); const originalText = el.dataset.text;
+        setTimeout(() => {
+            el.nextElementSibling.style.display = 'inline-block';
+            fx.setText(originalText).then(() => { setTimeout(() => { el.nextElementSibling.style.display = 'none'; }, 1000); });
+        }, 500);
+    });
+
+    // --- Scroll Reveal Effect ---
+    const revealElements = document.querySelectorAll('[data-reveal]');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+        });
+    }, { threshold: 0.1 });
+    revealElements.forEach(el => { observer.observe(el); });
+
+    // --- Page Navigation and UI Logic ---
+    const homePage = document.getElementById('homePage');
+    const loginPage = document.getElementById('loginPage');
+    const dashboardPage = document.getElementById('dashboardPage');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginForm = document.getElementById('loginForm');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userToggle = document.getElementById('userToggle');
+    const adminToggle = document.getElementById('adminToggle');
+
+    loginBtn.addEventListener('click', () => { homePage.style.display = 'none'; loginPage.style.display = 'flex'; });
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        // Get all relevant class information
+        const adminClasses = adminToggle.classList.toString();
+        const userClasses = userToggle.classList.toString();
+        const isAdminActive = adminToggle.classList.contains('bg-white');
+        const isUserActive = userToggle.classList.contains('bg-white');
+
+        console.log('=== LOGIN ATTEMPT DEBUG ===');
+        console.log('Email:', email);
+        console.log('Admin button classes:', adminClasses);
+        console.log('User button classes:', userClasses);
+        console.log('Admin toggle has bg-white:', isAdminActive);
+        console.log('User toggle has bg-white:', isUserActive);
+        console.log('Admin toggle is active:', isAdminActive);
+        console.log('==========================');
+
+        if (isAdminActive) {
+            console.log('✅ Admin login path - redirecting to admin.html');
+            // Simple relative path redirect - works with Live Preview and local servers
+            window.location.href = './admin.html';
+        } else {
+            console.log('✅ User login path - showing dashboard');
+            loginPage.style.display = 'none';
+            dashboardPage.style.display = 'block';
+        }
+    });
+    logoutBtn.addEventListener('click', () => {
+        dashboardPage.style.display = 'none';
+        homePage.style.display = 'block';
+        document.getElementById('resultsSection').classList.add('hidden');
+        document.getElementById('dnaSequenceInput').value = '';
+    });
+    const setToggle = (active, inactive) => {
+         active.classList.add('bg-white', 'text-black'); 
+         active.classList.remove('text-gray-400');
+         inactive.classList.remove('bg-white', 'text-black'); 
+         inactive.classList.add('text-gray-400');
+         console.log(`Toggle updated - Active: ${active.id}, Inactive: ${inactive.id}`);
+         console.log(`Admin classes: ${adminToggle.className}`);
+         console.log(`User classes: ${userToggle.className}`);
+    };
+    userToggle.addEventListener('click', () => {
+        console.log('User toggle clicked');
+        setToggle(userToggle, adminToggle);
+    });
+    adminToggle.addEventListener('click', () => {
+        console.log('Admin toggle clicked');
+        setToggle(adminToggle, userToggle);
+    });
+
+    // ===============================================================
+    // ================== API INTEGRATION STARTS HERE ================
+    // ===============================================================
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const batchAnalyzeBtn = document.getElementById('batchAnalyzeBtn');
+    const csvFileInput = document.getElementById('csvFileInput');
+    const csvUploadBtn = document.getElementById('csvUploadBtn');
+    
+    const resultsSection = document.getElementById('resultsSection');
+    const pipelineStatusEl = document.getElementById('pipelineStatus');
+    const classificationResultEl = document.getElementById('classificationResult');
+    const noveltyResultEl = document.getElementById('noveltyResult');
+    const analyzeButtonText = 'INITIATE ANALYSIS';
+    
+    const API_ENDPOINT = 'https://dnabert-classifier-83913461974.asia-south2.run.app/predict';
+    let parsedCsvData = [];
+
+    // --- Single Sequence Analysis ---
+    analyzeBtn.addEventListener('click', async () => {
+        const dnaInput = document.getElementById('dnaSequenceInput');
+        let rawSequence = dnaInput.value.trim();
+
+        if (rawSequence === "") {
+            rawSequence = "> Using example sequence...\nGATCCTCCAGENTTAGTTCGCTTGCACTGAATAGACCCGTCACACACAGGAGAGTTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAGGGTGAGGGTCGGCTGTTCCTAGGGCCGAGGTCGTGAGTGGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT";
+            dnaInput.value = rawSequence;
+        }
+        
+        await performSingleAnalysis(rawSequence);
+    });
+
+    // --- Batch CSV Analysis ---
+    csvUploadBtn.addEventListener('click', () => csvFileInput.click());
+
+    csvFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const content = e.target.result;
+                    // Basic CSV parsing
+                    const rows = content.split('\n').filter(row => row.trim() !== '');
+                    const headers = rows[0].split(',').map(h => h.trim());
+                    const sampleIdIndex = headers.indexOf('sample_id');
+                    const sequenceIndex = headers.indexOf('sequence');
+
+                    if (sampleIdIndex === -1 || sequenceIndex === -1) {
+                        throw new Error("CSV must contain 'sample_id' and 'sequence' columns.");
+                    }
+
+                    parsedCsvData = rows.slice(1).map(row => {
+                        const values = row.split(',');
+                        return {
+                            sample_id: values[sampleIdIndex].trim(),
+                            sequence: values[sequenceIndex].trim()
+                        };
+                    });
+                    
+                    csvUploadBtn.textContent = `${file.name} (${parsedCsvData.length} sequences) ready.`;
+                    batchAnalyzeBtn.disabled = false;
+                } catch (err) {
+                    csvUploadBtn.textContent = 'Error parsing file. Check format.';
+                    console.error(err);
+                    parsedCsvData = [];
+                    batchAnalyzeBtn.disabled = true;
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+    
+    batchAnalyzeBtn.addEventListener('click', async () => {
+        if (parsedCsvData.length === 0) return;
+
+        resultsSection.classList.remove('hidden');
+        let allResults = [];
+        
+        // UI setup for batch processing
+        pipelineStatusEl.innerHTML = `
+            <div class="flex items-center justify-between">
+                <span>Processing batch...</span>
+                <span id="batchProgressText">0 / ${parsedCsvData.length}</span>
+            </div>
+            <div class="w-full bg-[#27272a] h-1 mt-2">
+                <div id="batchProgressBar" class="bg-white h-1" style="width: 0%"></div>
+            </div>`;
+        
+        batchAnalyzeBtn.disabled = true;
+        analyzeBtn.disabled = true;
+        
+        for (let i = 0; i < parsedCsvData.length; i++) {
+            const item = parsedCsvData[i];
+            try {
+                const result = await callApi(item.sequence);
+                allResults.push(result);
+            } catch (error) {
+                console.error(`Error processing sample ${item.sample_id}:`, error);
+                // Push a failed result to keep counts consistent
+                allResults.push({ predicted_taxa: "ERROR" });
+            }
+            
+            // Update progress bar
+            const progress = ((i + 1) / parsedCsvData.length) * 100;
+            document.getElementById('batchProgressBar').style.width = `${progress}%`;
+            document.getElementById('batchProgressText').textContent = `${i + 1} / ${parsedCsvData.length}`;
+        }
+        
+        pipelineStatusEl.innerHTML = `<span class="text-green-400">Batch processing complete. [OK]</span>`;
+        updateAbundanceChart(allResults);
+        
+        // Reset buttons
+        batchAnalyzeBtn.disabled = false;
+        analyzeBtn.disabled = false;
+    });
+
+    // --- Core API and UI Functions ---
+
+    async function performSingleAnalysis(rawSequence) {
+        resultsSection.classList.remove('hidden');
+        classificationResultEl.innerHTML = '';
+        pipelineStatusEl.innerHTML = '<span class="text-yellow-400">Validating sequence...</span>';
+        analyzeBtn.disabled = true;
+        analyzeBtn.textContent = 'ANALYZING...';
+        
+        try {
+            const sequence = rawSequence.replace(/>.*/g, '').replace(/\s/g, '').toUpperCase();
+            const validDnaRegex = /^[ATCGN]+$/;
+            if (!validDnaRegex.test(sequence)) {
+                throw new Error("Input contains invalid characters. Only A, T, G, C, and N are allowed.");
+            }
+
+            pipelineStatusEl.innerHTML = '<span class="text-yellow-400">Sending request to AI model...</span>';
+            const data = await callApi(sequence);
+            pipelineStatusEl.innerHTML = '<span class="text-green-400">Response received. [OK]</span>';
+            populateSingleResult(data);
+
+        } catch (error) {
+            console.error('API Call Failed:', error);
+            pipelineStatusEl.innerHTML = `<div class="text-red-500 p-2 border border-red-500/50 bg-red-500/10"><b>Error:</b> ${error.message}</div>`;
+            populateSingleResult(null);
+        } finally {
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = analyzeButtonText;
+        }
+    }
+    
+    async function callApi(sequence) {
+        const response = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sequence: sequence })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Error (${response.status}): ${errorText}`);
+        }
+        return await response.json();
+    }
+
+    function populateSingleResult(apiData) {
+        if (apiData) {
+            classificationResultEl.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Predicted Group:</span>
+                    <span class="text-white font-semibold">${apiData.predicted_group || 'N/A'}</span>
+                    <span class="text-gray-500">CONF: ${(apiData.group_confidence * 100).toFixed(0)}%</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400">Predicted Taxa:</span>
+                    <span class="text-white font-semibold">${apiData.predicted_taxa || 'N/A'}</span>
+                    <span class="text-gray-500">CONF: ${(apiData.taxa_confidence * 100).toFixed(0)}%</span>
+                </div>`;
+            noveltyResultEl.innerHTML = apiData.novelty_status;
+        } else {
+            classificationResultEl.innerHTML = '<div class="text-gray-500">Analysis failed. See status.</div>';
+            noveltyResultEl.innerHTML = 'N/A';
+        }
+        // Clear abundance chart for single results
+        updateAbundanceChart([]);
+    }
+    
+    function updateAbundanceChart(results) {
+        const counts = results.reduce((acc, result) => {
+            const taxa = result.predicted_taxa || "Unknown";
+            acc[taxa] = (acc[taxa] || 0) + 1;
+            return acc;
+        }, {});
+        
+        const sortedTaxa = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        
+        const labels = sortedTaxa.map(item => item[0]);
+        const data = sortedTaxa.map(item => item[1]);
+
+        const abundanceChartInstance = Chart.getChart('abundanceChart');
+        if(abundanceChartInstance) abundanceChartInstance.destroy();
+        
+        const ctx = document.getElementById('abundanceChart').getContext('2d');
+        Chart.defaults.font.family = "'Roboto Mono', monospace";
+        new Chart(ctx, {
+             type: 'bar',
+             data: { 
+                 labels: labels, 
+                 datasets: [{ 
+                     label: 'Count',
+                     data: data,
+                     backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                 }] 
+             },
+             options: {
+                 indexAxis: 'y',
+                 responsive: true,
+                 scales: {
+                     y: { ticks: { color: '#9ca3af', font: {size: 10} }, grid: { color: '#27272a' } },
+                     x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
+                 },
+                 plugins: {
+                     legend: { display: false },
+                     title: { display: labels.length === 0, text: 'No batch data to display', color: '#6b7280', font: {size: 10} },
+                 }
+             }
+        });
+    }
+});
