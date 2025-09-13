@@ -117,6 +117,23 @@
                     <button id="csvUploadBtn" class="w-full border border-dashed border-[#27272a] hover:border-white transition py-4 text-gray-400 text-sm">
                         CLICK TO UPLOAD CSV FILE
                     </button>
+                    
+                    <!-- Metadata Inputs -->
+                    <div class="mt-4 space-y-3">
+                        <div>
+                            <label for="batchDate" class="text-xs font-medium text-gray-400">COLLECTION DATE</label>
+                            <input type="date" id="batchDate" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
+                        </div>
+                        <div>
+                            <label for="batchTemperature" class="text-xs font-medium text-gray-400">TEMPERATURE (°C)</label>
+                            <input type="number" id="batchTemperature" step="0.1" placeholder="e.g. 24.5" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
+                        </div>
+                        <div>
+                            <label for="batchDepth" class="text-xs font-medium text-gray-400">DEPTH (meters)</label>
+                            <input type="number" id="batchDepth" step="0.1" placeholder="e.g. 1500.0" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
+                        </div>
+                    </div>
+                    
                     <div class="mt-4 text-right">
                         <button id="batchAnalyzeBtn" class="btn-primary font-bold py-2 px-5 text-xs" disabled>ANALYZE BATCH</button>
                     </div>
