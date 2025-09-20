@@ -17,7 +17,87 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #000000;
+            color: #e5e7eb;
+            --grid-color: rgba(255, 255, 255, 0.07);
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        #bg-dna-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        .card {
+            background-color: rgba(0,0,0,0.5);
+            border: 1px solid #27272a;
+            backdrop-filter: blur(10px);
+        }
+        .btn-primary {
+            background-color: transparent;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            border: 1px solid #ffffff;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .btn-primary:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .btn-primary:disabled {
+            color: #6b7280;
+            border-color: #3f3f46;
+            background-color: transparent;
+            cursor: not-allowed;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .section-title {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .line {
+            height: 1px;
+            background-color: #27272a;
+            flex-grow: 1;
+        }
+        .text-scramble {
+            display: inline-block;
+        }
+        .blinking-cursor {
+            color: white;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+    </style>
 </head>
 <body class="antialiased">
     <canvas id="bg-dna-canvas"></canvas>
@@ -78,18 +158,18 @@
         <!-- LOGIN PAGE -->
         <div id="loginPage" class="hidden min-h-screen flex items-center justify-center p-4">
              <div class="w-full max-w-sm">
-                <div class="card p-8 space-y-6 border border-[#27272a]">
-                    <h2 class="text-lg font-bold text-center text-white tracking-widest">// AUTHENTICATION REQUIRED</h2>
-                    <div>
-                        <div class="flex border border-[#27272a]"><button id="userToggle" class="w-1/2 py-2 text-sm font-medium bg-white text-black">USER</button><button id="adminToggle" class="w-1/2 py-2 text-sm font-medium text-gray-400">ADMIN</button></div>
-                    </div>
-                    <form id="loginForm" class="space-y-4">
-                        <div><label for="email" class="text-xs font-medium text-gray-400">EMAIL_ADDR</label><input type="email" id="email" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm" value="user@cmlre.gov"></div>
-                        <div><label for="password" class="text-xs font-medium text-gray-400">PASSWORD</label><input type="password" id="password" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none" value="password"></div>
-                        <button type="submit" class="w-full btn-primary font-bold py-3 px-4 text-xs">EXECUTE LOGIN</button>
-                    </form>
-                </div>
-            </div>
+                 <div class="card p-8 space-y-6 border border-[#27272a]">
+                     <h2 class="text-lg font-bold text-center text-white tracking-widest">// AUTHENTICATION REQUIRED</h2>
+                     <div>
+                         <div class="flex border border-[#27272a]"><button id="userToggle" class="w-1/2 py-2 text-sm font-medium bg-white text-black">USER</button><button id="adminToggle" class="w-1/2 py-2 text-sm font-medium text-gray-400">ADMIN</button></div>
+                     </div>
+                     <form id="loginForm" class="space-y-4">
+                         <div><label for="email" class="text-xs font-medium text-gray-400">EMAIL_ADDR</label><input type="email" id="email" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm" value="user@cmlre.gov"></div>
+                         <div><label for="password" class="text-xs font-medium text-gray-400">PASSWORD</label><input type="password" id="password" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none" value="password"></div>
+                         <button type="submit" class="w-full btn-primary font-bold py-3 px-4 text-xs">EXECUTE LOGIN</button>
+                     </form>
+                 </div>
+             </div>
         </div>
 
         <!-- DASHBOARD PAGE -->
@@ -121,16 +201,12 @@
                     <!-- Metadata Inputs -->
                     <div class="mt-4 space-y-3">
                         <div>
-                            <label for="batchDate" class="text-xs font-medium text-gray-400">COLLECTION DATE</label>
-                            <input type="date" id="batchDate" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
-                        </div>
-                        <div>
-                            <label for="batchTemperature" class="text-xs font-medium text-gray-400">TEMPERATURE (°C)</label>
-                            <input type="number" id="batchTemperature" step="0.1" placeholder="e.g. 24.5" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
+                            <label for="environmentType" class="text-xs font-medium text-gray-400">ENVIRONMENT TYPE</label>
+                            <input type="text" id="environmentType" placeholder="e.g. Hydrothermal Vent" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
                         </div>
                         <div>
                             <label for="batchDepth" class="text-xs font-medium text-gray-400">DEPTH (meters)</label>
-                            <input type="number" id="batchDepth" step="0.1" placeholder="e.g. 1500.0" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
+                            <input type="number" id="batchDepth" step="1" placeholder="e.g. 2500" class="w-full mt-1 p-3 bg-black border border-[#27272a] focus:ring-1 focus:ring-white focus:border-white outline-none text-sm">
                         </div>
                     </div>
                     
@@ -143,15 +219,31 @@
             <!-- Results Section -->
             <div id="resultsSection" class="hidden">
                  <div class="mb-8 card border border-[#27272a] p-4">
-                    <h3 class="text-lg font-semibold text-white mb-4">// API STATUS</h3>
-                    <div id="pipelineStatus" class="text-xs"></div>
-                </div>
+                     <h3 class="text-lg font-semibold text-white mb-4">// PIPELINE STATUS</h3>
+                     <div id="pipelineStatus" class="text-xs"></div>
+                 </div>
+
+                 <!-- NEW: Gene Marker Results Card -->
+                 <div id="markerResultsCard" class="hidden mb-8 card border border-[#27272a] p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">// GENE MARKER DETECTION</h3>
+                    <div id="markerResultsContent"></div>
+                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 space-y-8">
+                        <!-- ECOLOGICAL INSIGHTS SECTION -->
+                        <div id="insightsCard" class="card p-6 border border-[#27272a]">
+                            <h3 class="text-lg font-semibold text-white mb-4">// ECOLOGICAL INSIGHTS REPORT (via Gemini)</h3>
+                            <div id="insightsResult" class="space-y-6 text-sm">
+                                <p class="text-gray-500">Ecological insights will be generated after batch analysis is complete.</p>
+                            </div>
+                        </div>
+
                         <div class="card p-6 border border-[#27272a]">
                             <h3 class="text-lg font-semibold text-white mb-4">// TAXONOMIC CLASSIFICATION</h3>
-                            <div id="classificationResult" class="space-y-3 text-sm"></div>
+                            <div id="classificationResult" class="space-y-3 text-sm">
+                                <p class="text-gray-500">Results will be summarized in the abundance chart. Single sequence analysis results will appear here.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="space-y-8">
@@ -161,7 +253,7 @@
                         </div>
                         <div class="card p-6 border border-[#27272a]">
                             <h3 class="text-lg font-semibold text-white mb-4">// NOVELTY DETECTION</h3>
-                            <div id="noveltyResult" class="text-sm p-4 bg-black border border-[#27272a]"></div>
+                            <div id="noveltyResult" class="text-sm p-4 bg-black border border-[#27272a] font-light"></div>
                         </div>
                     </div>
                 </div>
@@ -169,6 +261,744 @@
              <div class="h-24"></div>
         </div>
     </div>
-    <script src="script.js" type="module"></script>
+    
+    <script type="module">
+        import * as THREE from 'three';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Section Title Creation ---
+            const createSectionTitle = (n, t) => `<div data-reveal class="flex items-center gap-4 py-24"><span class="section-title text-gray-500">${n}</span><span class="section-title text-white">${t}</span><div class="line"></div></div>`;
+            
+            const problemSection = document.getElementById('problem');
+            if (problemSection) {
+                const title = createSectionTitle('01', 'Problem Statement');
+                const content = problemSection.innerHTML;
+                problemSection.innerHTML = title + content;
+            }
+            const solutionSection = document.getElementById('solution');
+            if (solutionSection) {
+                const title = createSectionTitle('02', 'Proposed Solution');
+                const content = solutionSection.innerHTML;
+                solutionSection.innerHTML = title + content;
+            }
+            const techSection = document.getElementById('tech');
+            if (techSection) {
+                const title = createSectionTitle('03', 'System Architecture');
+                const content = techSection.innerHTML;
+                techSection.innerHTML = title + content;
+            }
+
+            // --- Background 3D DNA Model ---
+            // ... (3D animation code is unchanged)
+            const bgCanvas = document.getElementById('bg-dna-canvas');
+            if (bgCanvas) {
+                const scene = new THREE.Scene();
+                scene.fog = new THREE.Fog(0x000000, 10, 40);
+                const camera = new THREE.PerspectiveCamera(75, bgCanvas.clientWidth / bgCanvas.clientHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ canvas: bgCanvas, alpha: true, antialias: true });
+                renderer.setSize(bgCanvas.clientWidth, bgCanvas.clientHeight);
+                const ambientLight = new THREE.AmbientLight(0x40a0ff, 0.5);
+                scene.add(ambientLight);
+                const directionalLight = new THREE.DirectionalLight(0x80c0ff, 1);
+                directionalLight.position.set(5, 5, 5);
+                scene.add(directionalLight);
+                const group = new THREE.Group();
+                group.rotation.x = Math.PI / 8;
+                group.rotation.y = -Math.PI / 4;
+                const helixRadius = 3;
+                const helixHeight = 40;
+                const turnCount = 10;
+                const basePairs = 150;
+                const baseColors = [0x00aaff, 0x0088cc, 0x006699];
+                const createStrand = () => {
+                    const curve = new THREE.CatmullRomCurve3(
+                        Array.from({ length: 200 }, (_, i) => {
+                            const t = (i / 199) * helixHeight;
+                            return new THREE.Vector3(
+                                helixRadius * Math.cos(t * turnCount * Math.PI / helixHeight),
+                                t - helixHeight / 2,
+                                helixRadius * Math.sin(t * turnCount * Math.PI / helixHeight)
+                            );
+                        })
+                    );
+                    const geometry = new THREE.TubeGeometry(curve, 100, 0.15, 12, false);
+                    const material = new THREE.MeshPhongMaterial({ color: 0x0055aa, shininess: 30 });
+                    return new THREE.Mesh(geometry, material);
+                };
+                const strand1 = createStrand();
+                const strand2 = createStrand();
+                strand2.rotation.y = Math.PI;
+                group.add(strand1, strand2);
+                for (let i = 0; i < basePairs; i++) {
+                    const t = (i / (basePairs - 1)) * helixHeight;
+                    const y = t - helixHeight / 2;
+                    const angle = t * turnCount * Math.PI / helixHeight;
+                    const start = new THREE.Vector3(helixRadius * Math.cos(angle), y, helixRadius * Math.sin(angle));
+                    const end = new THREE.Vector3(helixRadius * Math.cos(angle + Math.PI), y, helixRadius * Math.sin(angle + Math.PI));
+                    const distance = start.distanceTo(end);
+                    const position = start.clone().add(end).divideScalar(2);
+                    const cylinderGeometry = new THREE.CylinderGeometry(0.08, 0.08, distance, 8);
+                    const cylinderMaterial = new THREE.MeshPhongMaterial({
+                        color: baseColors[i % baseColors.length],
+                        emissive: baseColors[i % baseColors.length],
+                        emissiveIntensity: 0.3
+                    });
+                    const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
+                    cylinder.position.copy(position);
+                    cylinder.lookAt(end);
+                    cylinder.rotateX(Math.PI / 2);
+                    group.add(cylinder);
+                }
+                scene.add(group);
+                const initialCameraZ = 40;
+                const finalCameraZ = 5;
+                camera.position.z = initialCameraZ;
+                const animate = () => {
+                    requestAnimationFrame(animate);
+                    group.rotation.y += 0.0005;
+                    renderer.render(scene, camera);
+                };
+                animate();
+                function handleScrollAnimation() {
+                    const scrollY = window.scrollY;
+                    const animationScrollHeight = window.innerHeight;
+                    const scrollFraction = Math.min(scrollY / animationScrollHeight, 1);
+                    const easedFraction = 1 - Math.pow(1 - scrollFraction, 3);
+                    camera.position.z = THREE.MathUtils.lerp(initialCameraZ, finalCameraZ, easedFraction);
+                    camera.position.y = THREE.MathUtils.lerp(0, helixHeight / 4, easedFraction);
+                    group.rotation.y = THREE.MathUtils.lerp(-Math.PI / 4, Math.PI, easedFraction);
+                    group.rotation.x = THREE.MathUtils.lerp(Math.PI / 8, -Math.PI / 16, easedFraction);
+                }
+                window.addEventListener('scroll', handleScrollAnimation, { passive: true });
+                window.addEventListener('resize', () => {
+                    const newWidth = window.innerWidth;
+                    const newHeight = window.innerHeight;
+                    camera.aspect = newWidth / newHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(newWidth, newHeight);
+                });
+            }
+            
+            // --- Text Scramble Effect ---
+            // ... (TextScrambleEffect class is unchanged)
+            class TextScrambleEffect {
+                constructor(el) { this.el = el; this.chars = '!<>-_\\/[]{}—=+*^?#________'; this.update = this.update.bind(this); }
+                setText(newText) {
+                    const oldText = this.el.innerText;
+                    const length = Math.max(oldText.length, newText.length);
+                    const promise = new Promise((resolve) => this.resolve = resolve);
+                    this.queue = [];
+                    for (let i = 0; i < length; i++) {
+                        const from = oldText[i] || ''; const to = newText[i] || '';
+                        const start = Math.floor(Math.random() * 40); const end = start + Math.floor(Math.random() * 40);
+                        this.queue.push({ from, to, start, end });
+                    }
+                    cancelAnimationFrame(this.frameRequest); this.frame = 0; this.update(); return promise;
+                }
+                update() {
+                    let output = ''; let complete = 0;
+                    for (let i = 0, n = this.queue.length; i < n; i++) {
+                        let { from, to, start, end, char } = this.queue[i];
+                        if (this.frame >= end) { complete++; output += to; } 
+                        else if (this.frame >= start) {
+                            if (!char || Math.random() < 0.28) { char = this.randomChar(); this.queue[i].char = char; }
+                            output += `<span class="opacity-50">${char}</span>`;
+                        } else { output += from; }
+                    }
+                    this.el.innerHTML = output;
+                    if (complete === this.queue.length) { this.resolve(); } 
+                    else { this.frameRequest = requestAnimationFrame(this.update); this.frame++; }
+                }
+                randomChar() { return this.chars[Math.floor(Math.random() * this.chars.length)]; }
+            }
+            
+            const scrambleElements = document.querySelectorAll('.text-scramble');
+            scrambleElements.forEach(el => {
+                const fx = new TextScrambleEffect(el); const originalText = el.dataset.text;
+                setTimeout(() => {
+                    el.nextElementSibling.style.display = 'inline-block';
+                    fx.setText(originalText).then(() => { setTimeout(() => { el.nextElementSibling.style.display = 'none'; }, 1000); });
+                }, 500);
+            });
+
+            // --- Scroll Reveal Effect ---
+            // ... (Scroll reveal logic is unchanged)
+            const revealElements = document.querySelectorAll('[data-reveal]');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+                });
+            }, { threshold: 0.1 });
+            revealElements.forEach(el => { observer.observe(el); });
+
+            // --- Page Navigation and UI Logic ---
+            const homePage = document.getElementById('homePage');
+            const loginPage = document.getElementById('loginPage');
+            const dashboardPage = document.getElementById('dashboardPage');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginForm = document.getElementById('loginForm');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const userToggle = document.getElementById('userToggle');
+            const adminToggle = document.getElementById('adminToggle');
+
+            loginBtn.addEventListener('click', () => { homePage.style.display = 'none'; loginPage.style.display = 'flex'; });
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const isAdminActive = adminToggle.classList.contains('bg-white');
+
+                if (isAdminActive) {
+                    // This is a placeholder for actual admin login logic
+                    // In a real app, you would validate credentials
+                    window.location.href = './admin.html'; // Redirect to admin page
+                } else {
+                    loginPage.style.display = 'none';
+                    dashboardPage.style.display = 'block';
+                }
+            });
+            logoutBtn.addEventListener('click', () => {
+                dashboardPage.style.display = 'none';
+                homePage.style.display = 'block';
+                document.getElementById('resultsSection').classList.add('hidden');
+                document.getElementById('dnaSequenceInput').value = '';
+            });
+            const setToggle = (active, inactive) => {
+                 active.classList.add('bg-white', 'text-black'); 
+                 active.classList.remove('text-gray-400');
+                 inactive.classList.remove('bg-white', 'text-black'); 
+                 inactive.classList.add('text-gray-400');
+            };
+            userToggle.addEventListener('click', () => setToggle(userToggle, adminToggle));
+            adminToggle.addEventListener('click', () => setToggle(adminToggle, userToggle));
+
+            // ===============================================================
+            // ================== API INTEGRATION STARTS HERE ================
+            // ===============================================================
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const batchAnalyzeBtn = document.getElementById('batchAnalyzeBtn');
+            const csvFileInput = document.getElementById('csvFileInput');
+            const csvUploadBtn = document.getElementById('csvUploadBtn');
+            
+            const resultsSection = document.getElementById('resultsSection');
+            const pipelineStatusEl = document.getElementById('pipelineStatus');
+            const markerResultsCard = document.getElementById('markerResultsCard');
+            const markerResultsContent = document.getElementById('markerResultsContent');
+            const classificationResultEl = document.getElementById('classificationResult');
+            const noveltyResultEl = document.getElementById('noveltyResult');
+            const insightsResultEl = document.getElementById('insightsResult');
+            const analyzeButtonText = 'INITIATE ANALYSIS';
+            
+            // --- NEW: API Endpoints ---
+            const GENE_MARKER_API_URL = "https://gene-marker-api-894435700020.us-central1.run.app";
+            const DNABERT_API_ENDPOINT = 'https://dnabert-classifier-83913461974.asia-south2.run.app/predict';
+            let parsedCsvData = [];
+
+            // --- Single Sequence Analysis ---
+            analyzeBtn.addEventListener('click', async () => {
+                const dnaInput = document.getElementById('dnaSequenceInput');
+                let rawSequence = dnaInput.value.trim();
+
+                if (rawSequence === "") {
+                    rawSequence = "> Using example sequence...\nGATCCTCCAGENTTAGTTCGCTTGCACTGAATAGACCCGTCACACAGGAGAGTTTCTACAGGCGGTTAGAATAAAATCAATAGGACTCTTTCGAGGCCCTGTAATTGGAATGAGTCCACGTTAATAAGGGTGAGGGTCGGCTGTTCCTAGGGCCGAGGTCGTGAGTGGTGGTTATGCCTGTCGAACTAGAGATCGGTGAGAGGGGATTCGTATT";
+                    dnaInput.value = rawSequence;
+                }
+                
+                await performSingleAnalysis(rawSequence);
+            });
+
+            // --- Batch CSV Analysis ---
+            csvUploadBtn.addEventListener('click', () => csvFileInput.click());
+
+            csvFileInput.addEventListener('change', (event) => {
+                // ... (CSV parsing logic is unchanged)
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const content = e.target.result;
+                            const rows = content.split('\n').filter(row => row.trim() !== '');
+                            const headers = rows[0].split(',').map(h => h.trim());
+                            const sampleIdIndex = headers.indexOf('sample_id');
+                            const sequenceIndex = headers.indexOf('sequence');
+
+                            if (sampleIdIndex === -1 || sequenceIndex === -1) {
+                                throw new Error("CSV must contain 'sample_id' and 'sequence' columns.");
+                            }
+
+                            parsedCsvData = rows.slice(1).map(row => {
+                                const values = row.split(',');
+                                return {
+                                    sample_id: values[sampleIdIndex].trim(),
+                                    sequence: values[sequenceIndex].trim()
+                                };
+                            });
+                            
+                            csvUploadBtn.textContent = `${file.name} (${parsedCsvData.length} sequences) ready.`;
+                            batchAnalyzeBtn.disabled = false;
+                        } catch (err) {
+                            csvUploadBtn.textContent = 'Error parsing file. Check format.';
+                            console.error(err);
+                            parsedCsvData = [];
+                            batchAnalyzeBtn.disabled = true;
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            
+            batchAnalyzeBtn.addEventListener('click', async () => {
+                if (parsedCsvData.length === 0) return;
+
+                resultsSection.classList.remove('hidden');
+                let allTaxaResults = [];
+                
+                batchAnalyzeBtn.disabled = true;
+                analyzeBtn.disabled = true;
+
+                // --- STEP 1: Gene Marker Detection (Batch) ---
+                pipelineStatusEl.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span>[1/3] Detecting gene markers...</span>
+                        <span id="batchProgressText">0 / ${parsedCsvData.length}</span>
+                    </div>
+                    <div class="w-full bg-[#27272a] h-1 mt-2"><div id="batchProgressBar" class="bg-white h-1" style="width: 0%"></div></div>`;
+
+                let foundMarkers = [];
+                for (let i = 0; i < parsedCsvData.length; i++) {
+                    const item = parsedCsvData[i];
+                    try {
+                        const markerData = await callGeneMarkerApi(item.sequence);
+                        const markers = filterRelevantMarkers(markerData.predictions || []);
+                        markers.forEach(marker => {
+                            foundMarkers.push({
+                                original_sample_id: item.sample_id,
+                                marker_label: marker.label,
+                                marker_sequence: marker.sequence
+                            });
+                        });
+                    } catch (error) {
+                         console.error(`Marker detection failed for sample ${item.sample_id}:`, error);
+                    }
+                    const progress = ((i + 1) / parsedCsvData.length) * 100;
+                    document.getElementById('batchProgressBar').style.width = `${progress}%`;
+                    document.getElementById('batchProgressText').textContent = `${i + 1} / ${parsedCsvData.length}`;
+                }
+
+                // --- STEP 2: Taxonomic Classification (Batch) ---
+                pipelineStatusEl.innerHTML += `<br><span class="text-green-400">[1/3] Marker detection complete. Found ${foundMarkers.length} markers.</span>`;
+                pipelineStatusEl.innerHTML += `
+                    <div class="flex items-center justify-between mt-2">
+                        <span>[2/3] Classifying taxa with Bio-Line model...</span>
+                        <span id="taxaProgressText">0 / ${foundMarkers.length}</span>
+                    </div>
+                    <div class="w-full bg-[#27272a] h-1 mt-2"><div id="taxaProgressBar" class="bg-white h-1" style="width: 0%"></div></div>`;
+                
+                for (let i = 0; i < foundMarkers.length; i++) {
+                    const marker = foundMarkers[i];
+                    try {
+                        const result = await callDnabertApi(marker.marker_sequence);
+                        allTaxaResults.push(result);
+                    } catch (error) {
+                        console.error(`Taxa classification failed for a marker from ${marker.original_sample_id}:`, error);
+                        allTaxaResults.push({ predicted_taxa: "ERROR", predicted_group: "ERROR", novelty_status: "ERROR", taxa_confidence: 0, group_confidence: 0 });
+                    }
+                    const progress = ((i + 1) / foundMarkers.length) * 100;
+                    document.getElementById('taxaProgressBar').style.width = `${progress}%`;
+                    document.getElementById('taxaProgressText').textContent = `${i + 1} / ${foundMarkers.length}`;
+                }
+
+                pipelineStatusEl.innerHTML += `<br><span class="text-green-400">[2/3] Classification complete.</span>`;
+                
+                // Update UI with results
+                updateAbundanceChart(allTaxaResults);
+                const novelCount = allTaxaResults.filter(r => r.novelty_status && r.novelty_status.includes('Potentially Novel')).length;
+                noveltyResultEl.innerHTML = `<span class="text-2xl font-bold text-white">${novelCount}</span> <span class="text-gray-400">of ${allTaxaResults.length} sequences flagged as potentially novel.</span>`;
+
+                // --- STEP 3: Generate Ecological Insights (Batch) ---
+                await generateAndDisplayInsights(allTaxaResults);
+
+                // Reset buttons
+                batchAnalyzeBtn.disabled = false;
+                analyzeBtn.disabled = false;
+            });
+
+            // --- Core API and UI Functions ---
+
+            async function performSingleAnalysis(rawSequence) {
+                // Reset UI
+                resultsSection.classList.remove('hidden');
+                classificationResultEl.innerHTML = '<p class="text-gray-500">Awaiting classification results...</p>';
+                markerResultsCard.classList.add('hidden');
+                markerResultsContent.innerHTML = '';
+                
+                analyzeBtn.disabled = true;
+                analyzeBtn.textContent = 'ANALYZING...';
+                
+                try {
+                    // --- STEP 1: Gene Marker Detection ---
+                    pipelineStatusEl.innerHTML = '<span class="text-yellow-400">[1/2] Detecting gene markers (COI/18sRNA)...</span>';
+                    const sequence = rawSequence.replace(/>.*/g, '').replace(/\s/g, '').toUpperCase();
+                    if (!/^[ATCGN]+$/.test(sequence)) {
+                        throw new Error("Input contains invalid characters. Only A, T, G, C, and N are allowed.");
+                    }
+                    const markerData = await callGeneMarkerApi(sequence);
+                    const markers = filterRelevantMarkers(markerData.predictions || []);
+
+                    if (markers.length === 0) {
+                        throw new Error("No relevant gene markers (COI or 18sRNA) were detected in the provided sequence.");
+                    }
+
+                    // Display marker results
+                    markerResultsCard.classList.remove('hidden');
+                    let markerHTML = `<p class="text-sm text-gray-300 mb-4">Detected ${markers.length} relevant marker(s):</p>`;
+                    markers.forEach(marker => {
+                        markerHTML += `
+                            <div class="p-3 bg-black border border-[#27272a] mb-2">
+                                <p class="font-semibold text-white">${marker.label}</p>
+                                <p class="text-xs text-gray-400 break-all mt-1">${marker.sequence.substring(0, 100)}...</p>
+                            </div>
+                        `;
+                    });
+                    markerResultsContent.innerHTML = markerHTML;
+                    pipelineStatusEl.innerHTML = `<span class="text-green-400">[1/2] Marker detection complete.</span>`;
+
+                    // --- STEP 2: Taxonomic Classification ---
+                    pipelineStatusEl.innerHTML += '<br><span class="text-yellow-400">[2/2] Classifying detected marker(s) with Bio-Line model...</span>';
+                    classificationResultEl.innerHTML = ''; // Clear the placeholder
+                    
+                    for (const marker of markers) {
+                        const taxaData = await callDnabertApi(marker.sequence);
+                        populateSingleResult(taxaData, marker.label);
+                    }
+                    pipelineStatusEl.innerHTML += `<br><span class="text-green-400">[2/2] Classification complete. [OK]</span>`;
+
+                } catch (error) {
+                    console.error('Analysis Failed:', error);
+                    pipelineStatusEl.innerHTML = `<div class="text-red-500 p-2 border border-red-500/50 bg-red-500/10"><b>Error:</b> ${error.message}</div>`;
+                    populateSingleResult(null);
+                } finally {
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.textContent = analyzeButtonText;
+                }
+            }
+
+            async function callGeneMarkerApi(sequence) {
+                const response = await fetch(GENE_MARKER_API_URL + '/predict-text/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sequence })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`Gene Marker API Error (${response.status}): ${errorData.detail || 'Failed to fetch'}`);
+                }
+                return await response.json();
+            }
+
+            function filterRelevantMarkers(predictions) {
+                const coiPredictions = predictions.filter(p => p.label.toLowerCase().includes('coi'));
+                const bestCOI = coiPredictions.length > 0 ? coiPredictions.reduce((max, p) => p.confidence > max.confidence ? p : max, coiPredictions[0]) : null;
+
+                const rRNAPredictions = predictions.filter(p => p.label.toLowerCase().includes('18s'));
+                const best18sRNA = rRNAPredictions.length > 0 ? rRNAPredictions.reduce((max, p) => p.confidence > max.confidence ? p : max, rRNAPredictions[0]) : null;
+
+                const found = [];
+                if (bestCOI) found.push(bestCOI);
+                if (best18sRNA) found.push(best18sRNA);
+                return found;
+            }
+            
+            async function callDnabertApi(sequence) {
+                // ... (This function is unchanged)
+                const response = await fetch(DNABERT_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sequence: sequence })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Bio-Line API Error (${response.status}): ${errorText}`);
+                }
+                return await response.json();
+            }
+            
+            async function generateAndDisplayInsights(results) {
+                 // ... (This function is largely unchanged)
+                 pipelineStatusEl.innerHTML += '<br><span class="text-yellow-400">[3/3] Generating ecological insights with Gemini...</span>';
+                 insightsResultEl.innerHTML = '<p class="text-gray-500">Communicating with Gemini API...</p>';
+
+                 const apiKey = "AIzaSyABQw87mIPRP56tYS1GXMk_eedpj6lIyBs"; // Hardcoded API Key is removed for security. User needs to add their own.
+                 if (!apiKey) {
+                    insightsResultEl.innerHTML = `<div class="text-yellow-400 font-light">Gemini API key is not provided in the script. Ecological insights cannot be generated.</div>`;
+                    pipelineStatusEl.innerHTML += `<br><span class="text-yellow-400">[3/3] Skipped insights generation.</span>`;
+                    return;
+                 }
+
+
+                 // 1. Aggregate data for the prompt
+                 const counts = results.reduce((acc, result) => {
+                     if (result.predicted_taxa === "ERROR") return acc;
+                     const taxa = result.predicted_taxa || "Unknown";
+                     if (!acc[taxa]) {
+                         acc[taxa] = { count: 0, totalConfidence: 0, group: result.predicted_group };
+                     }
+                     acc[taxa].count++;
+                     acc[taxa].totalConfidence += result.taxa_confidence;
+                     return acc;
+                 }, {});
+
+                 const aggregatedData = Object.entries(counts).map(([taxa, data]) => ({
+                     taxon: taxa,
+                     group: data.group,
+                     abundance: data.count,
+                     avg_confidence: parseFloat((data.totalConfidence / data.count).toFixed(2))
+                 }));
+                 
+                 // 2. Get metadata
+                 const sampleId = "BatchAnalysis-" + new Date().toISOString().slice(0,10);
+                 const environment = document.getElementById('environmentType').value || 'Not Specified';
+                 const depth = document.getElementById('batchDepth').value || 'Not Specified';
+
+                 // 3. Construct Gemini Prompt
+                 const prompt = `
+You are an expert marine ecologist and bioinformatician. Your task is to generate a concise ecological insights report in a structured JSON format based on the provided eDNA sample data.
+
+### CONTEXT
+The following data represents the taxonomic composition from a single deep-sea eDNA sample.
+- Sample ID: ${sampleId}
+- Environment Type: ${environment}
+- Depth: ${depth} meters
+
+### INPUT DATA
+Here is the list of identified taxa, their group, their read count (abundance), and the average classifier confidence.
+\`\`\`json
+${JSON.stringify(aggregatedData, null, 2)}
+\`\`\`
+
+### YOUR TASK
+Analyze the input data and return a JSON object with exactly the following structure. Do not add any explanatory text before or after the JSON object. 
+- For "insight", provide a 2-3 sentence summary.
+- For "richness_value", provide the total number of unique taxa.
+- For "evenness_category", classify the distribution of abundances as 'Low', 'Moderate', or 'High'.
+- For "protist_count" and "metazoan_count", provide the total read count for each group.
+
+### REQUIRED JSON OUTPUT STRUCTURE
+\`\`\`json
+{
+  "summary": { "title": "Ecological Summary", "insight": "Provide a high-level, 2-sentence summary of the ecosystem, mentioning the dominant life forms (e.g., protist-dominated, metazoan-rich) and overall diversity." },
+  "biodiversity_assessment": { "title": "Biodiversity Assessment", "insight": "Comment on the sample's alpha diversity. Mention richness and evenness.", "richness_value": 0, "evenness_category": "Moderate" },
+  "community_structure": { "title": "Community Structure", "insight": "Comment on the ratio of protists to metazoans and what it suggests.", "protist_count": 0, "metazoan_count": 0 },
+  "dominant_taxa": { "title": "Dominant Taxa & Significance", "insight": "Identify the top 2-3 most abundant taxa and describe their likely ecological significance." },
+  "trophic_levels": { "title": "Ecological Roles & Food Web", "insight": "Infer the primary trophic levels and the likely base of the food web." },
+  "bioindicators": { "title": "Bioindicator Analysis", "insight": "Analyze the community for any known bioindicator taxa suggesting specific environmental conditions." }
+}
+\`\`\`
+`;
+                 // 4. Call Gemini API
+                 try {
+                     const GEMINI_API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                     const payload = { contents: [{ parts: [{ text: prompt }] }] };
+                     const response = await fetch(GEMINI_API_ENDPOINT, {
+                         method: 'POST',
+                         headers: { 'Content-Type': 'application/json' },
+                         body: JSON.stringify(payload)
+                     });
+
+                     if (!response.ok) {
+                          const errorBody = await response.text();
+                          throw new Error(`Gemini API Error (${response.status}): ${errorBody}`);
+                     }
+                     
+                     const result = await response.json();
+                     
+                     if (!result.candidates || !result.candidates[0] || !result.candidates[0].content || !result.candidates[0].content.parts[0]) {
+                         throw new Error("Invalid response structure from Gemini API.");
+                     }
+
+                     const rawText = result.candidates[0].content.parts[0].text;
+                     const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                     if (!jsonMatch) throw new Error("Invalid JSON response from Gemini API: No JSON object found.");
+                     
+                     const insights = JSON.parse(jsonMatch[0]);
+                     
+                     displayEcologicalInsights(insights);
+                     pipelineStatusEl.innerHTML += `<br><span class="text-green-400">[3/3] Insights generated successfully. [OK]</span>`;
+                 } catch (error) {
+                     console.error("Gemini API call failed:", error);
+                     let errorMessage = error.message;
+                     if (errorMessage.includes("API_KEY_INVALID") || (errorMessage.includes("400") && errorMessage.includes("API key not valid"))) {
+                         errorMessage = `The hardcoded Gemini API Key appears to be invalid. Please check the key in the source code and try again. You can obtain a valid key from <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 underline hover:text-blue-300">Google AI Studio</a>.`;
+                     } else if (errorMessage.includes("403")) {
+                         errorMessage = `Your Gemini API Key is being blocked. This might be due to restrictions on the key or the network. Please check your key's permissions.`;
+                     }
+                     insightsResultEl.innerHTML = `<div class="text-red-500 font-light">${errorMessage}</div>`;
+                     pipelineStatusEl.innerHTML += `<br><span class="text-red-500">[3/3] Failed to generate insights.</span>`;
+                 }
+            }
+            
+            function createCommunityChart(canvasId, protistCount, metazoanCount) {
+                 // ... (This function is unchanged)
+                 const chartInstance = Chart.getChart(canvasId);
+                 if(chartInstance) chartInstance.destroy();
+
+                 const ctx = document.getElementById(canvasId).getContext('2d');
+                 new Chart(ctx, {
+                     type: 'doughnut',
+                     data: {
+                         labels: ['Protista', 'Metazoa'],
+                         datasets: [{
+                             data: [protistCount, metazoanCount],
+                             backgroundColor: ['rgba(59, 130, 246, 0.7)', 'rgba(239, 68, 68, 0.7)'],
+                             borderColor: ['#3B82F6', '#EF4444'],
+                             borderWidth: 1
+                         }]
+                     },
+                     options: {
+                         responsive: true,
+                         cutout: '60%',
+                         plugins: {
+                             legend: {
+                                 position: 'bottom',
+                                 labels: {
+                                     color: '#9ca3af',
+                                     boxWidth: 12,
+                                     padding: 15,
+                                     font: { family: "'Roboto Mono', monospace" }
+                                 }
+                             },
+                             title: { display: false }
+                         }
+                     }
+                 });
+            }
+
+            function displayEcologicalInsights(insights) {
+                // ... (This function is unchanged)
+                insightsResultEl.innerHTML = ''; // Clear previous content
+                if (!insights) {
+                    insightsResultEl.innerHTML = '<p class="text-gray-500">No insights were generated.</p>';
+                    return;
+                }
+                
+                // Helper to create a standard insight block
+                const createInsightBlock = (item) => `
+                    <div class="border-l-2 border-[#27272a] pl-4">
+                        <h4 class="font-semibold text-white tracking-wide">${item.title || 'Insight'}</h4>
+                        <p class="text-gray-400 font-light mt-1">${item.insight || 'No details provided.'}</p>
+                    </div>`;
+
+                // Display insights with custom infographics
+                if (insights.summary) insightsResultEl.innerHTML += createInsightBlock(insights.summary);
+                
+                if (insights.biodiversity_assessment) {
+                    const item = insights.biodiversity_assessment;
+                    const infographicHTML = `
+                        <div class="grid grid-cols-2 gap-4 mt-3 pt-3 border-t border-[#27272a]/50">
+                            <div class="text-center p-2 bg-black/50 rounded-md">
+                                <div class="text-2xl font-bold text-white">${item.richness_value || 'N/A'}</div>
+                                <div class="text-xs text-gray-400 uppercase tracking-wider">Taxa Richness</div>
+                            </div>
+                            <div class="text-center p-2 bg-black/50 rounded-md">
+                                <div class="text-2xl font-bold text-white">${item.evenness_category || 'N/A'}</div>
+                                <div class="text-xs text-gray-400 uppercase tracking-wider">Evenness</div>
+                            </div>
+                        </div>`;
+                    insightsResultEl.innerHTML += createInsightBlock(item) + infographicHTML;
+                }
+
+                if (insights.community_structure) {
+                    const item = insights.community_structure;
+                    const chartHTML = `<div class="mt-4 pt-4 border-t border-[#27272a]/50"><canvas id="communityDonutChart" class="max-h-48 mx-auto"></canvas></div>`;
+                    insightsResultEl.innerHTML += createInsightBlock(item) + chartHTML;
+                    // Render the chart after adding the canvas to the DOM
+                    setTimeout(() => {
+                        createCommunityChart('communityDonutChart', item.protist_count || 0, item.metazoan_count || 0);
+                    }, 0);
+                }
+
+                if (insights.dominant_taxa) insightsResultEl.innerHTML += createInsightBlock(insights.dominant_taxa);
+                if (insights.trophic_levels) insightsResultEl.innerHTML += createInsightBlock(insights.trophic_levels);
+                if (insights.bioindicators) insightsResultEl.innerHTML += createInsightBlock(insights.bioindicators);
+
+            }
+
+            function populateSingleResult(apiData, markerLabel = '') {
+                // MODIFIED: Appends results for single analysis
+                if (apiData) {
+                    classificationResultEl.innerHTML += `
+                        <div class="p-3 bg-black border border-[#27272a] mb-2">
+                           <div class="flex justify-between items-center mb-1">
+                             <span class="text-gray-400">Source Marker:</span>
+                             <span class="text-white font-semibold">${markerLabel}</span>
+                           </div>
+                           <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Predicted Group:</span>
+                                <span class="text-white font-semibold">${apiData.predicted_group || 'N/A'}</span>
+                                <span class="text-gray-500">CONF: ${(apiData.group_confidence * 100).toFixed(0)}%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Predicted Taxa:</span>
+                                <span class="text-white font-semibold">${apiData.predicted_taxa || 'N/A'}</span>
+                                <span class="text-gray-500">CONF: ${(apiData.taxa_confidence * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>`;
+                    noveltyResultEl.innerHTML = apiData.novelty_status; // Overwrites for simplicity
+                } else {
+                    classificationResultEl.innerHTML = '<div class="text-gray-500">Analysis failed. See status.</div>';
+                    noveltyResultEl.innerHTML = 'N/A';
+                }
+                // Clear batch-related UI
+                updateAbundanceChart([]);
+                insightsResultEl.innerHTML = '<p class="text-gray-500">Ecological insights are only available for batch analysis.</p>';
+            }
+            
+            function updateAbundanceChart(results) {
+                 // ... (This function is unchanged)
+                const counts = results.reduce((acc, result) => {
+                    const taxa = result.predicted_taxa || "Unknown";
+                    acc[taxa] = (acc[taxa] || 0) + 1;
+                    return acc;
+                }, {});
+                
+                const sortedTaxa = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                
+                const labels = sortedTaxa.slice(0, 15).map(item => item[0]); // Show top 15
+                const data = sortedTaxa.slice(0, 15).map(item => item[1]);
+
+                const abundanceChartInstance = Chart.getChart('abundanceChart');
+                if(abundanceChartInstance) abundanceChartInstance.destroy();
+                
+                const ctx = document.getElementById('abundanceChart').getContext('2d');
+                Chart.defaults.font.family = "'Roboto Mono', monospace";
+                new Chart(ctx, {
+                       type: 'bar',
+                       data: { 
+                           labels: labels, 
+                           datasets: [{ 
+                               label: 'Count',
+                               data: data,
+                               backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                           }] 
+                       },
+                       options: {
+                           indexAxis: 'y',
+                           responsive: true,
+                           scales: {
+                               y: { ticks: { color: '#9ca3af', font: {size: 10} }, grid: { color: '#27272a' } },
+                               x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
+                           },
+                           plugins: {
+                               legend: { display: false },
+                               title: { display: labels.length === 0, text: 'No batch data to display', color: '#6b7280', font: {size: 10} },
+                           }
+                       }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
+
