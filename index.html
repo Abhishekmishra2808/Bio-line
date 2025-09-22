@@ -711,7 +711,7 @@
             }
             
             async function callDnabertApi(sequence) {
-                // ... (This function is unchanged)
+                // MODIFIED: Calls the Bio-Line API and flags results with < 75% confidence as novel.
                 const response = await fetch(DNABERT_API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -722,7 +722,15 @@
                     const errorText = await response.text();
                     throw new Error(`Bio-Line API Error (${response.status}): ${errorText}`);
                 }
-                return await response.json();
+                
+                const result = await response.json();
+                
+                // If the model's confidence is low, override the novelty status.
+                if (result && result.taxa_confidence < 0.75) {
+                    result.novelty_status = `Potentially Novel (Confidence < 75%)`;
+                }
+                
+                return result;
             }
             
             async function generateAndDisplayInsights(results) {
@@ -730,24 +738,24 @@
                  pipelineStatusEl.innerHTML += '<br><span class="text-yellow-400">[3/3] Generating ecological insights with Gemini...</span>';
                  insightsResultEl.innerHTML = '<p class="text-gray-500">Communicating with Gemini API...</p>';
 
-                 const apiKey = "AIzaSyABQw87mIPRP56tYS1GXMk_eedpj6lIyBs"; // Hardcoded API Key is removed for security. User needs to add their own.
+                 const apiKey = "AIzaSyABQw87mIPRP56tYS1GXMk_eedpj6lIyBs"; // IMPORTANT: User needs to add their own Gemini API Key here.
                  if (!apiKey) {
-                    insightsResultEl.innerHTML = `<div class="text-yellow-400 font-light">Gemini API key is not provided in the script. Ecological insights cannot be generated.</div>`;
-                    pipelineStatusEl.innerHTML += `<br><span class="text-yellow-400">[3/3] Skipped insights generation.</span>`;
-                    return;
+                     insightsResultEl.innerHTML = `<div class="text-yellow-400 font-light">Gemini API key is not provided in the script. Ecological insights cannot be generated.</div>`;
+                     pipelineStatusEl.innerHTML += `<br><span class="text-yellow-400">[3/3] Skipped insights generation.</span>`;
+                     return;
                  }
 
 
                  // 1. Aggregate data for the prompt
                  const counts = results.reduce((acc, result) => {
-                     if (result.predicted_taxa === "ERROR") return acc;
-                     const taxa = result.predicted_taxa || "Unknown";
-                     if (!acc[taxa]) {
-                         acc[taxa] = { count: 0, totalConfidence: 0, group: result.predicted_group };
-                     }
-                     acc[taxa].count++;
-                     acc[taxa].totalConfidence += result.taxa_confidence;
-                     return acc;
+                       if (result.predicted_taxa === "ERROR") return acc;
+                       const taxa = result.predicted_taxa || "Unknown";
+                       if (!acc[taxa]) {
+                           acc[taxa] = { count: 0, totalConfidence: 0, group: result.predicted_group };
+                       }
+                       acc[taxa].count++;
+                       acc[taxa].totalConfidence += result.taxa_confidence;
+                       return acc;
                  }, {});
 
                  const aggregatedData = Object.entries(counts).map(([taxa, data]) => ({
@@ -957,48 +965,47 @@ Analyze the input data and return a JSON object with exactly the following struc
             
             function updateAbundanceChart(results) {
                  // ... (This function is unchanged)
-                const counts = results.reduce((acc, result) => {
-                    const taxa = result.predicted_taxa || "Unknown";
-                    acc[taxa] = (acc[taxa] || 0) + 1;
-                    return acc;
-                }, {});
-                
-                const sortedTaxa = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-                
-                const labels = sortedTaxa.slice(0, 15).map(item => item[0]); // Show top 15
-                const data = sortedTaxa.slice(0, 15).map(item => item[1]);
+                 const counts = results.reduce((acc, result) => {
+                     const taxa = result.predicted_taxa || "Unknown";
+                     acc[taxa] = (acc[taxa] || 0) + 1;
+                     return acc;
+                 }, {});
+                 
+                 const sortedTaxa = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                 
+                 const labels = sortedTaxa.slice(0, 15).map(item => item[0]); // Show top 15
+                 const data = sortedTaxa.slice(0, 15).map(item => item[1]);
 
-                const abundanceChartInstance = Chart.getChart('abundanceChart');
-                if(abundanceChartInstance) abundanceChartInstance.destroy();
-                
-                const ctx = document.getElementById('abundanceChart').getContext('2d');
-                Chart.defaults.font.family = "'Roboto Mono', monospace";
-                new Chart(ctx, {
-                       type: 'bar',
-                       data: { 
-                           labels: labels, 
-                           datasets: [{ 
-                               label: 'Count',
-                               data: data,
-                               backgroundColor: 'rgba(255, 255, 255, 0.8)'
-                           }] 
-                       },
-                       options: {
-                           indexAxis: 'y',
-                           responsive: true,
-                           scales: {
-                               y: { ticks: { color: '#9ca3af', font: {size: 10} }, grid: { color: '#27272a' } },
-                               x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
-                           },
-                           plugins: {
-                               legend: { display: false },
-                               title: { display: labels.length === 0, text: 'No batch data to display', color: '#6b7280', font: {size: 10} },
-                           }
-                       }
-                });
+                 const abundanceChartInstance = Chart.getChart('abundanceChart');
+                 if(abundanceChartInstance) abundanceChartInstance.destroy();
+                 
+                 const ctx = document.getElementById('abundanceChart').getContext('2d');
+                 Chart.defaults.font.family = "'Roboto Mono', monospace";
+                 new Chart(ctx, {
+                        type: 'bar',
+                        data: { 
+                            labels: labels, 
+                            datasets: [{ 
+                                label: 'Count',
+                                data: data,
+                                backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                            }] 
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            scales: {
+                                y: { ticks: { color: '#9ca3af', font: {size: 10} }, grid: { color: '#27272a' } },
+                                x: { ticks: { color: '#9ca3af' }, grid: { color: '#27272a' } }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                title: { display: labels.length === 0, text: 'No batch data to display', color: '#6b7280', font: {size: 10} },
+                            }
+                        }
+                 });
             }
         });
     </script>
 </body>
 </html>
-
